@@ -1,0 +1,22 @@
+name: cadence
+description: "Carnet d'enchaînements de sports de combat, avec révision espacée guidée par la voix."
+publish_to: 'none'
+
+# 1.0.0 is what the user reads; +1 is the Android versionCode, which must grow
+# with every published APK.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

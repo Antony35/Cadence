@@ -20,13 +20,29 @@ semaine à l'autre, les enchaînements montrés par son professeur.
 | Étape | Contenu | État |
 |---|---|---|
 | 0 | Projet, thème, intégration continue | Fait |
-| 1 | Modèles et règles métier | À venir |
+| 1 | Modèles et règles métier | Fait |
 | 2 | Base de données SQLite | À venir |
 | 3 | Écran principal | À venir |
 | 4 | Ajouter et corriger un enchaînement | À venir |
 | 5 | Séance de révision vocale | À venir |
 | 6 | Réglages et finitions | À venir |
 | 7 | Livraison | À venir |
+
+## Le catalogue des techniques
+
+L'application contient 41 techniques (poings, coudes, pieds, genoux, défenses,
+déplacements), nommées selon le glossaire technique de la FFKMDA et l'usage
+des clubs français. C'est un **référentiel**, pas une donnée de
+démonstration : il est inséré dans la base au premier lancement et ne peut
+pas être modifié par l'utilisateur.
+
+## Dépendances
+
+| Paquet | Pourquoi |
+|---|---|
+| `freezed`, `freezed_annotation`, `build_runner` | Les objets du modèle sont immuables. `freezed` écrit pour eux `==`, `hashCode`, `copyWith` et `toString` : sans lui, chaque ajout de champ obligerait à modifier ces quatre méthodes à la main, avec le risque d'en oublier une. Le mode « classe classique » est utilisé : la classe reste une classe Dart ordinaire. |
+
+Chaque paquet est ajouté à l'étape qui s'en sert.
 
 ## Lancer le projet
 
@@ -35,15 +51,21 @@ Android.
 
 ```bash
 flutter pub get
+dart run build_runner build
 flutter run
 ```
+
+La deuxième commande génère les fichiers `*.freezed.dart` (voir
+« Dépendances »). Ils ne sont pas versionnés : on la relance après chaque
+modification d'un modèle.
 
 ## Vérifier la qualité
 
 ```bash
+dart run build_runner build
 flutter analyze
 flutter test
 ```
 
-Ces deux commandes sont lancées automatiquement à chaque `push` par GitHub
+Ces commandes sont lancées automatiquement à chaque `push` par GitHub
 Actions (`.github/workflows/ci.yml`).

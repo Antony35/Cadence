@@ -20,6 +20,9 @@ jobs:
           cache: true
 
       - run: flutter pub get
+      # Checked before generation: the generated files are not ours to format.
       - run: dart format --output=none --set-exit-if-changed lib test
+      # The *.freezed.dart files are not versioned: they are rebuilt here.
+      - run: dart run build_runner build
       - run: flutter analyze
       - run: flutter test

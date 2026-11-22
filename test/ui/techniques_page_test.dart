@@ -21,21 +21,21 @@ void main() {
     // here: no spinner turns on these screens.
     await tester.tap(find.byTooltip('Ouvrir le menu de navigation'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Techniques'));
+    await tester.tap(find.text('TECHNIQUES'));
     await tester.pumpAndSettle();
     expect(find.byType(TechniqueGrid), findsOneWidget);
-    expect(find.text('Jab'), findsOneWidget);
+    expect(find.text('JAB'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Rechercher'));
     await tester.pump();
     await tester.enterText(find.byType(TextField), 'teep');
     await tester.pump();
-    expect(find.text('Jab'), findsNothing);
+    expect(find.text('JAB'), findsNothing);
 
-    await tester.tap(find.text('Teep'));
+    await tester.tap(find.text('TEEP'));
     await tester.pumpAndSettle();
-    expect(find.text('Côté : avant ou arrière'), findsOneWidget);
-    expect(find.text('Utilisée dans'), findsOneWidget);
+    expect(find.text('avant ou arrière'), findsOneWidget);
+    expect(find.text('UTILISÉE DANS'), findsOneWidget);
     expect(find.text('Ouverture au teep'), findsOneWidget);
   });
 
@@ -43,12 +43,35 @@ void main() {
     await pumpApp(tester);
     await tester.tap(find.byTooltip('Ouvrir le menu de navigation'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Techniques'));
+    await tester.tap(find.text('TECHNIQUES'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Coudes'));
+    await tester.tap(find.text('COUDES'));
     await tester.pump();
-    expect(find.text('Coude horizontal'), findsOneWidget);
-    expect(find.text('Jab'), findsNothing);
+    expect(find.text('COUDE HORIZONTAL'), findsOneWidget);
+    expect(find.text('JAB'), findsNothing);
+  });
+
+  testWidgets('V4 — 3 columns on a 320 px phone with doubled text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await pumpApp(tester);
+    await tester.tap(find.byTooltip('Ouvrir le menu de navigation'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('TECHNIQUES'));
+    await tester.pumpAndSettle();
+
+    // An overflow would have failed the test with an exception.
+    final grid = tester.widget<GridView>(find.byType(GridView));
+    final delegate =
+        grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+    expect(delegate.crossAxisCount, 3);
+    expect(find.text('JAB'), findsOneWidget);
   });
 }

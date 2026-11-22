@@ -37,10 +37,10 @@ class MessageView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48, color: scheme.onSurfaceVariant),
+            Icon(icon, size: 32, color: scheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
-              title,
+              title.toUpperCase(),
               style: textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),

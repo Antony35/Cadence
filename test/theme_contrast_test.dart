@@ -79,6 +79,17 @@ void main() {
     }
   }
 
+  for (final MapEntry(key: name, value: colors) in families.entries) {
+    test('$name round board: text and gold figure reach 4.5:1', () {
+      final (:fill, :ink, :accent, :muted) = colors.scoreboard;
+      expect(contrast(ink, fill), greaterThanOrEqualTo(4.5));
+      expect(contrast(accent, fill), greaterThanOrEqualTo(4.5));
+      expect(contrast(muted, fill), greaterThanOrEqualTo(4.5));
+      // The gold button carries its label in the board color.
+      expect(contrast(fill, accent), greaterThanOrEqualTo(4.5));
+    });
+  }
+
   test('V1 — the light theme uses no pure black', () {
     const scheme = AppTheme.lightScheme;
     final colors = [

@@ -68,7 +68,7 @@ class TechniqueImage extends StatelessWidget {
   }
 }
 
-/// A disc in the family color, with the family icon.
+/// A square in the family color, with the family icon.
 class FamilyBadge extends StatelessWidget {
   const FamilyBadge(this.family, {super.key, this.size = 40});
 
@@ -81,7 +81,10 @@ class FamilyBadge extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: colors.fill, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        color: colors.fill,
+        borderRadius: BorderRadius.circular(AppTheme.radius),
+      ),
       child: Icon(family.icon, size: size * 0.55, color: colors.ink),
     );
   }

@@ -61,6 +61,11 @@ données.
 
 Chaque paquet est ajouté à l'étape qui s'en sert.
 
+Polices : [Barlow et Barlow Condensed](https://github.com/jpt/barlow), de
+Jeremy Tribby, sous licence SIL Open Font License 1.1
+(`assets/fonts/OFL.txt`). Elles sont embarquées dans l'application, qui
+fonctionne hors ligne.
+
 ## Lancer le projet
 
 Prérequis : Flutter 3.47.9 (canal stable) et un téléphone ou un émulateur

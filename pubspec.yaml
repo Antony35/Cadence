@@ -33,3 +33,17 @@ flutter:
   # A missing image is replaced by the family badge.
   assets:
     - assets/techniques/
+  # Barlow (text) and Barlow Condensed (titles, figures, labels), bundled
+  # because the app works offline. SIL Open Font License: assets/fonts/OFL.txt.
+  fonts:
+    - family: Barlow
+      fonts:
+        - asset: assets/fonts/Barlow-Regular.ttf
+        - asset: assets/fonts/Barlow-Medium.ttf
+          weight: 500
+    - family: BarlowCondensed
+      fonts:
+        - asset: assets/fonts/BarlowCondensed-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/BarlowCondensed-Bold.ttf
+          weight: 700

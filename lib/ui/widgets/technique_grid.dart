@@ -1,4 +1,5 @@
 import 'package:cadence/models/technique.dart';
+import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/technique_image.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,8 @@ class TechniqueGrid extends StatelessWidget {
     required this.onTap,
   });
 
+  /// The square that holds the image or the badge.
+  static const tileSize = 88.0;
   static const imageSize = 56.0;
 
   final List<Technique> techniques;
@@ -28,9 +31,9 @@ class TechniqueGrid extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        mainAxisSpacing: 8,
+        mainAxisSpacing: 12,
         crossAxisSpacing: 8,
-        mainAxisExtent: 12 + imageSize + 8 + 2 * line + 12,
+        mainAxisExtent: tileSize + 8 + 2 * line,
       ),
       itemCount: techniques.length,
       // Built on demand: only the visible tiles exist.
@@ -50,26 +53,32 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(4, 12, 4, 12),
-          child: Column(
-            children: [
-              TechniqueImage(technique, size: TechniqueGrid.imageSize),
-              const SizedBox(height: 8),
-              Text(
-                technique.name,
-                style: Theme.of(context).textTheme.labelLarge,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+    final scheme = Theme.of(context).colorScheme;
+    // No card: a grey square for the image, the name under it.
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radius),
+      child: Column(
+        children: [
+          Container(
+            height: TechniqueGrid.tileSize,
+            width: double.infinity,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(AppTheme.radius),
+            ),
+            child: TechniqueImage(technique, size: TechniqueGrid.imageSize),
           ),
-        ),
+          const SizedBox(height: 8),
+          Text(
+            technique.name.toUpperCase(),
+            style: Theme.of(context).textTheme.labelLarge,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

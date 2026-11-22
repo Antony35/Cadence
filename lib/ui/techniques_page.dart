@@ -38,7 +38,7 @@ class _TechniquesPageState extends State<TechniquesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Techniques')),
+      appBar: AppBar(title: const Text('TECHNIQUES')),
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) => switch (_controller.state) {

@@ -1,9 +1,10 @@
 import 'package:cadence/models/search.dart';
 import 'package:cadence/models/technique.dart';
-import 'package:cadence/ui/widgets/technique_image.dart';
+import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// C1: the search and the family filter, on one line. Used on the main
+/// C1: the search and the family filter, on one line: the families as text
+/// tabs, the magnifier on the right. Used on the main
 /// screen, the Techniques screen and, from step 4, the form.
 ///
 /// The [filter] belongs to the screen's controller: this widget shows it and
@@ -68,7 +69,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(height: 56, child: _editing ? _field() : _chips());
+    return SizedBox(height: 52, child: _editing ? _field() : _tabs());
   }
 
   Widget _field() {
@@ -91,7 +92,6 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
             final family => 'Rechercher dans ${family.label}',
           },
           isDense: true,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
           prefixIcon: IconButton(
             tooltip: 'Fermer la recherche',
             icon: const Icon(Icons.arrow_back_rounded),
@@ -109,52 +109,112 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
     );
   }
 
-  Widget _chips() {
+  Widget _tabs() {
     final query = widget.filter.query.trim();
     final selected = widget.filter.family;
-    return ListView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+    return Row(
       children: [
+        Expanded(
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(left: 8),
+            children: [
+              if (query.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Center(
+                    child: InputChip(
+                      label: Text('« $query »'),
+                      onPressed: () => setState(() => _editing = true),
+                      onDeleted: _clearQuery,
+                      deleteButtonTooltipMessage: 'Effacer la recherche',
+                    ),
+                  ),
+                ),
+              _Tab(
+                label: 'Toutes',
+                selected: selected == null,
+                onTap: () => widget.onFamilyChanged(null),
+              ),
+              for (final family in Family.values)
+                _Tab(
+                  label: family.label,
+                  family: family,
+                  selected: selected == family,
+                  // Touching the selected family again goes back to « Toutes ».
+                  onTap: () => widget.onFamilyChanged(
+                    selected == family ? null : family,
+                  ),
+                ),
+            ],
+          ),
+        ),
         IconButton(
           tooltip: 'Rechercher',
           icon: const Icon(Icons.search_rounded),
           onPressed: () => setState(() => _editing = true),
         ),
-        if (query.isNotEmpty)
-          _spaced(
-            InputChip(
-              label: Text('« $query »'),
-              onPressed: () => setState(() => _editing = true),
-              onDeleted: _clearQuery,
-              deleteButtonTooltipMessage: 'Effacer la recherche',
-            ),
-          ),
-        _spaced(
-          ChoiceChip(
-            label: const Text('Toutes'),
-            showCheckmark: false,
-            selected: selected == null,
-            onSelected: (_) => widget.onFamilyChanged(null),
-          ),
-        ),
-        for (final family in Family.values)
-          _spaced(
-            ChoiceChip(
-              avatar: FamilyBadge(family, size: 20),
-              label: Text(family.label),
-              showCheckmark: false,
-              selected: selected == family,
-              // Touching the selected family again goes back to « Toutes ».
-              onSelected: (on) => widget.onFamilyChanged(on ? family : null),
-            ),
-          ),
+        const SizedBox(width: 4),
       ],
     );
   }
+}
 
-  Widget _spaced(Widget chip) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 4),
-    child: Center(child: chip),
-  );
+/// One family as a text tab: capitals, a gold line under the selected one,
+/// and a square of the family color before the name (V3: never the color
+/// alone).
+class _Tab extends StatelessWidget {
+  const _Tab({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.family,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final Family? family;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final style = Theme.of(context).textTheme.labelMedium?.copyWith(
+      color: selected ? scheme.onSurface : scheme.onSurfaceVariant,
+    );
+    final family = this.family;
+
+    return Semantics(
+      selected: selected,
+      button: true,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: selected ? scheme.primary : Colors.transparent,
+                width: 2,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              if (family != null) ...[
+                SizedBox.square(
+                  dimension: 8,
+                  child: ColoredBox(
+                    color: CadenceColors.of(context).family(family).ink,
+                  ),
+                ),
+                const SizedBox(width: 6),
+              ],
+              Text(label.toUpperCase(), style: style),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

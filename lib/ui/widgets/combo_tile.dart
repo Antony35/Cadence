@@ -27,57 +27,59 @@ class ComboTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
-    final late = daysBetween(today, combo.dueOn) < 0;
+    final days = daysBetween(today, combo.dueOn);
     final hidden = combo.steps.length - maxThumbnails;
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      combo.displayName,
-                      style: text.titleSmall,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+    // A plain row, not a card: the screen separates the rows with lines.
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    combo.displayName,
+                    style: text.titleSmall,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(width: 8),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  dueLabel(combo.dueOn, today).toUpperCase(),
+                  style: text.labelMedium?.copyWith(
+                    color: switch (days) {
+                      < 0 => scheme.error,
+                      0 => scheme.primary,
+                      _ => scheme.onSurfaceVariant,
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                for (final step in combo.steps.take(maxThumbnails))
+                  TechniqueImage(step.technique, size: 28),
+                if (hidden > 0)
                   Text(
-                    dueLabel(combo.dueOn, today),
-                    style: text.labelMedium?.copyWith(
-                      color: late ? scheme.error : scheme.onSurfaceVariant,
+                    '+$hidden',
+                    style: text.labelLarge?.copyWith(
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  for (final step in combo.steps.take(maxThumbnails))
-                    TechniqueImage(step.technique, size: 32),
-                  if (hidden > 0)
-                    Text(
-                      '+$hidden',
-                      style: text.labelLarge?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );

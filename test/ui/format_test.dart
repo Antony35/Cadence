@@ -19,12 +19,12 @@ void main() {
   });
 
   test('F25 — sides and targets of a technique', () {
-    expect(sidesText({Side.rear, Side.lead}), 'Côté : avant ou arrière');
+    expect(sidesText({Side.rear, Side.lead}), 'avant ou arrière');
     expect(sidesText({}), isNull);
     expect(
       targetsText(Target.values.toSet()),
-      'Cible : à la tête, au corps ou à la cuisse',
+      'à la tête, au corps ou à la cuisse',
     );
-    expect(targetsText({Target.head}), 'Cible : à la tête');
+    expect(targetsText({Target.head}), 'à la tête');
   });
 }

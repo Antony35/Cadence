@@ -20,18 +20,22 @@ String dueLabel(DateTime dueOn, DateTime today) {
 String plural(int count, String singular, String plural) =>
     '$count ${count < 2 ? singular : plural}';
 
-/// F25: « Côté : avant ou arrière », or null for a technique without side.
+/// F25: « avant ou arrière », or null for a technique without side.
 String? sidesText(Set<Side> sides) => sides.isEmpty
     ? null
-    : 'Côté : ${_or([for (final side in Side.values)
-        if (sides.contains(side)) side.label])}';
+    : _or([
+        for (final side in Side.values)
+          if (sides.contains(side)) side.label,
+      ]);
 
-/// F25: « Cible : à la tête ou au corps », or null when the target is in
-/// the name (Low kick).
+/// F25: « à la tête ou au corps », or null when the target is in the name
+/// (Low kick).
 String? targetsText(Set<Target> targets) => targets.isEmpty
     ? null
-    : 'Cible : ${_or([for (final target in Target.values)
-        if (targets.contains(target)) target.label])}';
+    : _or([
+        for (final target in Target.values)
+          if (targets.contains(target)) target.label,
+      ]);
 
 /// « a », « a ou b », « a, b ou c ».
 String _or(List<String> words) => words.length < 2

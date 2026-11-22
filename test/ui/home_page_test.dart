@@ -41,25 +41,24 @@ void main() {
   testWidgets('F1, F3 — the card and the list', (tester) async {
     await pumpApp(tester, combos: combos);
 
-    expect(find.text('2'), findsOneWidget);
-    expect(find.text('à réviser'), findsOneWidget);
+    expect(find.text('02 À RÉVISER'), findsOneWidget);
     expect(find.text('dont 1 en retard · 3 enchaînements'), findsOneWidget);
     expect(find.text('Teep avant · Low kick arrière'), findsOneWidget);
-    expect(find.text('En retard'), findsOneWidget);
-    expect(find.text("Aujourd'hui"), findsOneWidget);
-    expect(find.text('Dans 7 j'), findsOneWidget);
+    expect(find.text('EN RETARD'), findsOneWidget);
+    expect(find.text("AUJOURD'HUI"), findsOneWidget);
+    expect(find.text('DANS 7 J'), findsOneWidget);
   });
 
   testWidgets('F2 — nothing due today', (tester) async {
     combos.combos = [combo(dueOn: DateTime(2026, 11, 24))];
     await pumpApp(tester, combos: combos);
-    expect(find.text("Rien à réviser aujourd'hui"), findsOneWidget);
+    expect(find.text("RIEN À RÉVISER AUJOURD'HUI"), findsOneWidget);
     expect(find.text('Réviser en avance'), findsOneWidget);
   });
 
   testWidgets('empty: the invitation, not a list', (tester) async {
     await pumpApp(tester);
-    expect(find.text('Aucun enchaînement'), findsOneWidget);
+    expect(find.text('AUCUN ENCHAÎNEMENT'), findsOneWidget);
     expect(find.text('Ajouter un enchaînement'), findsOneWidget);
   });
 
@@ -69,7 +68,7 @@ void main() {
     combos.error = Exception('disk I/O error');
     await pumpApp(tester, combos: combos);
     expect(find.text('Impossible de lire vos enchaînements.'), findsOneWidget);
-    expect(find.text('Aucun enchaînement'), findsNothing);
+    expect(find.text('AUCUN ENCHAÎNEMENT'), findsNothing);
 
     combos.error = null;
     await tester.tap(find.text('Réessayer'));
@@ -91,7 +90,7 @@ void main() {
 
     await tester.enterText(find.byType(TextField), 'superman');
     await tester.pump();
-    expect(find.text('Aucun résultat'), findsOneWidget);
+    expect(find.text('AUCUN RÉSULTAT'), findsOneWidget);
 
     await tester.tap(find.text('Tout effacer'));
     await tester.pump();
@@ -101,7 +100,7 @@ void main() {
 
   testWidgets('F4 — the family filter', (tester) async {
     await pumpApp(tester, combos: combos);
-    await tester.tap(find.text('Poings'));
+    await tester.tap(find.text('POINGS'));
     await tester.pump();
     expect(find.text('Base'), findsOneWidget);
     expect(find.text('Teep avant · Low kick arrière'), findsNothing);
@@ -123,5 +122,19 @@ void main() {
     }
     await tester.pump();
     expect(combos.reads, reads + 1);
+  });
+
+  testWidgets('V4 — the main screen on a 320 px phone with doubled text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    // An overflow fails the test with an exception.
+    await pumpApp(tester, combos: combos);
+    expect(find.text('02 À RÉVISER'), findsOneWidget);
   });
 }

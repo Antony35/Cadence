@@ -9,8 +9,8 @@ Brightness _brightness(WidgetTester tester) =>
 void main() {
   testWidgets('the app starts on its main screen', (tester) async {
     await pumpApp(tester);
-    expect(find.text('Cadence'), findsOneWidget);
-    expect(find.text('Aucun enchaînement'), findsOneWidget);
+    expect(find.text('CADENCE'), findsOneWidget);
+    expect(find.text('AUCUN ENCHAÎNEMENT'), findsOneWidget);
   });
 
   testWidgets('the app follows the phone light or dark setting', (

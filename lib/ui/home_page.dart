@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cadence')),
+      appBar: AppBar(title: const Text('CADENCE')),
       drawer: Drawer(
         child: SafeArea(
           child: ListView(
@@ -74,14 +74,17 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(28, 16, 16, 16),
                 child: Text(
-                  'Cadence',
+                  'CADENCE',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
               // Paramètres and À propos come with step 6.
               ListTile(
                 leading: const Icon(Icons.grid_view_rounded),
-                title: const Text('Techniques'),
+                title: Text(
+                  'TECHNIQUES',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
                 onTap: _openTechniques,
               ),
             ],
@@ -114,6 +117,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _content() {
     final visible = _controller.visible;
+    final text = Theme.of(context).textTheme;
     return ListView(
       // Leaves room for the + button under the last combo.
       padding: const EdgeInsets.only(top: 8, bottom: 96),
@@ -123,10 +127,21 @@ class _HomePageState extends State<HomePage> {
           child: ReviewCard(summary: _controller.summary),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-          child: Text(
-            'Mes enchaînements',
-            style: Theme.of(context).textTheme.titleMedium,
+          padding: const EdgeInsets.fromLTRB(16, 28, 16, 4),
+          // One text with two styles: it wraps with enlarged text.
+          child: Text.rich(
+            TextSpan(
+              style: text.titleMedium,
+              children: [
+                const TextSpan(text: 'MES ENCHAÎNEMENTS '),
+                TextSpan(
+                  text: '${_controller.summary.total}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         SearchFilterBar(
@@ -137,11 +152,11 @@ class _HomePageState extends State<HomePage> {
         if (visible.isEmpty)
           NoResultView(onClear: _controller.clearFilter)
         else
-          for (final combo in visible)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: ComboTile(combo: combo, today: _controller.today),
-            ),
+          // Rows separated by thin lines, like the lines of a notebook.
+          for (final (index, combo) in visible.indexed) ...[
+            if (index > 0) const Divider(indent: 16, endIndent: 16),
+            ComboTile(combo: combo, today: _controller.today),
+          ],
       ],
     );
   }

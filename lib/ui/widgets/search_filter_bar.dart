@@ -24,6 +24,9 @@ class SearchFilterBar extends StatefulWidget {
   /// Null for « Toutes ».
   final ValueChanged<Family?> onFamilyChanged;
 
+  /// Fixed, so that a screen can pin the bar (the form).
+  static const height = 52.0;
+
   @override
   State<SearchFilterBar> createState() => _SearchFilterBarState();
 }
@@ -69,7 +72,10 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(height: 52, child: _editing ? _field() : _tabs());
+    return SizedBox(
+      height: SearchFilterBar.height,
+      child: _editing ? _field() : _tabs(),
+    );
   }
 
   Widget _field() {

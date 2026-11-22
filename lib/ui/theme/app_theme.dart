@@ -188,6 +188,16 @@ abstract final class AppTheme {
         foregroundColor: scheme.onPrimaryContainer,
       ),
       chipTheme: ChipThemeData(shape: corners, labelStyle: _text.labelMedium),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: SegmentedButton.styleFrom(
+          shape: corners,
+          textStyle: _text.labelMedium,
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        shape: corners,
+        behavior: SnackBarBehavior.floating,
+      ),
       inputDecorationTheme: InputDecorationThemeData(
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(radius)),
       ),

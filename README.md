@@ -23,7 +23,7 @@ semaine à l'autre, les enchaînements montrés par son professeur.
 | 1 | Modèles et règles métier | Fait |
 | 2 | Base de données SQLite | Fait |
 | 3 | Écran principal | Fait |
-| 4 | Ajouter et corriger un enchaînement | À venir |
+| 4 | Ajouter et corriger un enchaînement | Fait |
 | 5 | Séance de révision vocale | À venir |
 | 6 | Réglages et finitions | À venir |
 | 7 | Livraison | À venir |
@@ -57,6 +57,7 @@ données.
 | `drift`, `drift_flutter`, `drift_dev` | ORM sur SQLite. Les tables sont décrites en Dart, drift écrit le SQL. Choisi pour les migrations versionnées (l'application va évoluer) et pour les requêtes vérifiées à la compilation. drift n'est utilisé que dans `lib/data/drift/`. |
 
 | `provider` | Rend les services (repositories, horloge) accessibles à tous les écrans, comme le conteneur de services de Symfony : un écran demande ce qu'il utilise, sans qu'on le lui transmette d'écran en écran. Choisi en vue de la V2 (profil et statistiques partagés entre écrans). |
+| `intl` | Les dates en français sur la fiche d'un enchaînement (« 24 novembre 2026 »). Déjà présent par `flutter_localizations`. |
 | `flutter_localizations` (SDK) | Les textes de Material en français (infobulles, boutons système). |
 
 Chaque paquet est ajouté à l'étape qui s'en sert.

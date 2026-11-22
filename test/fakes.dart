@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cadence/data/exceptions.dart';
 import 'package:cadence/data/repositories.dart';
 import 'package:cadence/models/catalog.dart';
 import 'package:cadence/models/combo.dart';
@@ -55,18 +56,57 @@ class FakeComboRepository implements ComboRepository {
       _read((c) => Leitner.isDue(c, today));
 
   @override
-  Future<Combo> findById(int id) => throw UnimplementedError();
+  Future<Combo> findById(int id) async {
+    reads++;
+    if (error case final error?) throw error;
+    return combos.firstWhere(
+      (c) => c.id == id,
+      orElse: () => throw NotFoundException('combo', id),
+    );
+  }
 
   @override
-  Future<int?> findIdBySignature(String signature) =>
-      throw UnimplementedError();
+  Future<int?> findIdBySignature(String signature) async =>
+      combos.where((c) => c.signature == signature).firstOrNull?.id;
+
+  /// When set, every write throws it.
+  Object? writeError;
+
+  /// When set, writes wait for it: the test sees the saving state.
+  Completer<void>? writeGate;
+
+  int writes = 0;
+
+  Future<void> _write(String signature, {int? except}) async {
+    writes++;
+    if (writeGate case final gate?) await gate.future;
+    if (writeError case final error?) throw error;
+    final existing = await findIdBySignature(signature);
+    if (existing != null && existing != except) {
+      throw DuplicateComboException(existing);
+    }
+  }
 
   @override
   Future<Combo> create({
     String? name,
     required List<ComboStep> steps,
     required DateTime now,
-  }) => throw UnimplementedError();
+  }) async {
+    await _write(ComboRules.signature(steps));
+    final trimmed = name?.trim();
+    final combo = Combo(
+      id: combos.fold(0, (max, c) => c.id > max ? c.id : max) + 1,
+      name: trimmed == null || trimmed.isEmpty ? null : trimmed,
+      steps: steps,
+      box: Leitner.firstBox,
+      dueOn: Leitner.firstDueOn(now),
+      createdAt: now,
+      updatedAt: now,
+    );
+    combos = [...combos, combo];
+    return combo;
+  }
 
   @override
   Future<Combo> update(
@@ -74,10 +114,26 @@ class FakeComboRepository implements ComboRepository {
     String? name,
     required List<ComboStep> steps,
     required DateTime now,
-  }) => throw UnimplementedError();
+  }) async {
+    await _write(ComboRules.signature(steps), except: id);
+    final old = await findById(id);
+    final trimmed = name?.trim();
+    final updated = old.copyWith(
+      name: trimmed == null || trimmed.isEmpty ? null : trimmed,
+      steps: steps,
+      updatedAt: now,
+    );
+    combos = [for (final c in combos) c.id == id ? updated : c];
+    return updated;
+  }
 
   @override
-  Future<void> delete(int id) => throw UnimplementedError();
+  Future<void> delete(int id) async {
+    writes++;
+    if (writeError case final error?) throw error;
+    if (!combos.any((c) => c.id == id)) throw NotFoundException('combo', id);
+    combos = combos.where((c) => c.id != id).toList();
+  }
 }
 
 class FakeTechniqueRepository implements TechniqueRepository {
@@ -91,10 +147,13 @@ class FakeTechniqueRepository implements TechniqueRepository {
 }
 
 class FakeReviewRepository implements ReviewRepository {
+  /// Reviews per combo id.
+  Map<int, int> counts = {};
+
   @override
   Future<Combo> record(Combo combo, Grade grade, {required DateTime now}) =>
       throw UnimplementedError();
 
   @override
-  Future<int> countFor(int comboId) => throw UnimplementedError();
+  Future<int> countFor(int comboId) async => counts[comboId] ?? 0;
 }

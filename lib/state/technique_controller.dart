@@ -27,7 +27,8 @@ class TechniqueController extends ChangeNotifier {
   DateTime get today => _today;
 
   Future<void> load() async {
-    _set(const Loading());
+    // A reload keeps the list on screen.
+    if (_combosUsing is! Ready) _set(const Loading());
     LoadState<List<Combo>> next;
     try {
       final combos = await _combos.findWithTechnique(technique.slug);

@@ -1,9 +1,20 @@
 import 'package:cadence/models/technique.dart';
 import 'package:cadence/ui/format.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() {
   final today = DateTime(2026, 11, 23, 21);
+
+  // In the app, the French locale loads the month names; here, by hand.
+  setUpAll(() => initializeDateFormatting('fr'));
+
+  test('F16 — a day in French, a step number on two digits', () {
+    expect(dayLabel(DateTime(2026, 11, 24)), '24 novembre 2026');
+    expect(dayLabel(DateTime(2027, 2, 1)), '1 février 2027');
+    expect(stepNumber(0), '01');
+    expect(stepNumber(11), '12');
+  });
 
   test('F3 — the next review, in words', () {
     expect(dueLabel(DateTime(2026, 11, 20), today), 'En retard');

@@ -8,12 +8,13 @@ Future<void> pumpApp(
   WidgetTester tester, {
   FakeComboRepository? combos,
   FakeTechniqueRepository? techniques,
+  FakeReviewRepository? reviews,
 }) async {
   await tester.pumpWidget(
     CadenceApp(
       techniques: techniques ?? FakeTechniqueRepository(),
       combos: combos ?? FakeComboRepository(),
-      reviews: FakeReviewRepository(),
+      reviews: reviews ?? FakeReviewRepository(),
       clock: FixedClock(),
     ),
   );

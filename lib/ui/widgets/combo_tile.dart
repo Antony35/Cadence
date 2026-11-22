@@ -20,7 +20,7 @@ class ComboTile extends StatelessWidget {
   final Combo combo;
   final DateTime today;
 
-  /// Null until the sheet exists (step 4).
+  /// Opens the combo sheet.
   final VoidCallback? onTap;
 
   @override

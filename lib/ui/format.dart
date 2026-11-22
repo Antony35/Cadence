@@ -1,5 +1,6 @@
 import 'package:cadence/models/dates.dart';
 import 'package:cadence/models/technique.dart';
+import 'package:intl/intl.dart';
 
 // French wording of computed values. The calculations stay in `models/`:
 // these functions only choose the words.
@@ -41,3 +42,10 @@ String? targetsText(Set<Target> targets) => targets.isEmpty
 String _or(List<String> words) => words.length < 2
     ? words.join()
     : '${words.sublist(0, words.length - 1).join(', ')} ou ${words.last}';
+
+/// F16: « 24 novembre 2026 ». The French month names come from `intl`,
+/// loaded with the French locale of the app.
+String dayLabel(DateTime day) => DateFormat('d MMMM y', 'fr').format(day);
+
+/// The number of a step, on two digits like a round: « 01 », « 12 ».
+String stepNumber(int index) => (index + 1).toString().padLeft(2, '0');

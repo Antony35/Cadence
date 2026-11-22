@@ -3,9 +3,11 @@ import 'package:cadence/models/technique.dart';
 import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/load_state.dart';
 import 'package:cadence/state/technique_controller.dart';
+import 'package:cadence/ui/combo_page.dart';
 import 'package:cadence/ui/format.dart';
 import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/combo_tile.dart';
+import 'package:cadence/ui/widgets/fact_row.dart';
 import 'package:cadence/ui/widgets/state_views.dart';
 import 'package:cadence/ui/widgets/technique_image.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +36,17 @@ class _TechniquePageState extends State<TechniquePage> {
     super.dispose();
   }
 
+  /// Opens a combo that uses the technique; on return, the list is read
+  /// again (the combo may have been changed or deleted).
+  Future<void> _open(int id) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<bool>(builder: (_) => ComboPage(id: id)),
+    );
+    if (!mounted) return;
+    await _controller.load();
+  }
+
   @override
   Widget build(BuildContext context) {
     final technique = widget.technique;
@@ -58,11 +71,11 @@ class _TechniquePageState extends State<TechniquePage> {
           const SizedBox(height: 16),
           Text(technique.name.toUpperCase(), style: text.headlineSmall),
           const SizedBox(height: 12),
-          _Fact('Famille', technique.family.label),
+          FactRow('Famille', technique.family.label),
           if (sidesText(technique.sides) case final sides?)
-            _Fact('Côté', sides),
+            FactRow('Côté', sides),
           if (targetsText(technique.targets) case final targets?)
-            _Fact('Cible', targets),
+            FactRow('Cible', targets),
           const SizedBox(height: 28),
           Text('UTILISÉE DANS', style: text.titleMedium),
           const SizedBox(height: 4),
@@ -88,52 +101,17 @@ class _TechniquePageState extends State<TechniquePage> {
                 children: [
                   for (final (index, combo) in data.indexed) ...[
                     if (index > 0) const Divider(),
-                    // Opens the combo sheet from step 4.
-                    ComboTile(combo: combo, today: _controller.today),
+                    ComboTile(
+                      combo: combo,
+                      today: _controller.today,
+                      onTap: () => _open(combo.id),
+                    ),
                   ],
                 ],
               ),
             },
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// One line of the sheet: the label in small capitals, the value beside it.
-class _Fact extends StatelessWidget {
-  const _Fact(this.label, this.value);
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            SizedBox(
-              width: 96,
-              child: Text(
-                label.toUpperCase(),
-                style: text.labelMedium?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-            Expanded(child: Text(value, style: text.bodyLarge)),
-          ],
-        ),
       ),
     );
   }

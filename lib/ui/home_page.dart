@@ -1,7 +1,10 @@
 import 'package:cadence/data/repositories.dart';
+import 'package:cadence/models/combo.dart';
 import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/home_controller.dart';
 import 'package:cadence/state/load_state.dart';
+import 'package:cadence/ui/combo_form_page.dart';
+import 'package:cadence/ui/combo_page.dart';
 import 'package:cadence/ui/techniques_page.dart';
 import 'package:cadence/ui/widgets/combo_tile.dart';
 import 'package:cadence/ui/widgets/review_card.dart';
@@ -58,8 +61,33 @@ class _HomePageState extends State<HomePage> {
     // While we waited, the screen may have been closed: `mounted` says if it
     // is still there.
     if (!mounted) return;
-    // Back from another screen, the list is read again: from step 4, a combo
-    // can be changed from a technique sheet.
+    // Back from another screen, the list is read again: a combo may have
+    // been changed or deleted from a technique sheet.
+    await _controller.load();
+  }
+
+  /// F5: the form; back with a new combo, the list is read again.
+  Future<void> _create() async {
+    final combo = await Navigator.push(
+      context,
+      MaterialPageRoute<Combo>(builder: (_) => const ComboFormPage()),
+    );
+    if (!mounted) return;
+    await _controller.load();
+    if (combo != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enregistré · à réviser demain')),
+      );
+    }
+  }
+
+  /// F5: touching a row opens the sheet of the combo.
+  Future<void> _open(Combo combo) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<bool>(builder: (_) => ComboPage(id: combo.id)),
+    );
+    if (!mounted) return;
     await _controller.load();
   }
 
@@ -91,7 +119,11 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      floatingActionButton: const _AddButton(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _create,
+        tooltip: 'Ajouter un enchaînement',
+        child: const Icon(Icons.add_rounded),
+      ),
       // Rebuilds what is below each time the controller notifies.
       body: ListenableBuilder(
         listenable: _controller,
@@ -101,13 +133,17 @@ class _HomePageState extends State<HomePage> {
             message: message,
             onRetry: _controller.load,
           ),
-          Empty() => const MessageView(
+          Empty() => MessageView(
             icon: Icons.sports_mma_rounded,
             title: 'Aucun enchaînement',
             text:
                 'Notez les enchaînements vus en cours : '
                 'Cadence vous dira quand les réviser.',
-            action: _AddFirstButton(),
+            action: FilledButton.icon(
+              onPressed: _create,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Ajouter un enchaînement'),
+            ),
           ),
           Ready() => _content(),
         },
@@ -155,41 +191,13 @@ class _HomePageState extends State<HomePage> {
           // Rows separated by thin lines, like the lines of a notebook.
           for (final (index, combo) in visible.indexed) ...[
             if (index > 0) const Divider(indent: 16, endIndent: 16),
-            ComboTile(combo: combo, today: _controller.today),
+            ComboTile(
+              combo: combo,
+              today: _controller.today,
+              onTap: () => _open(combo),
+            ),
           ],
       ],
     );
   }
-}
-
-/// F5. Disabled until the form exists (step 4): no button leads to an
-/// empty screen.
-class _AddButton extends StatelessWidget {
-  const _AddButton();
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return FloatingActionButton(
-      onPressed: null,
-      tooltip: 'Ajouter un enchaînement',
-      // A floating button has no disabled look of its own.
-      backgroundColor: scheme.surfaceContainerHighest,
-      foregroundColor: scheme.onSurfaceVariant,
-      elevation: 0,
-      child: const Icon(Icons.add_rounded),
-    );
-  }
-}
-
-/// The button of the empty state; enabled with the form (step 4).
-class _AddFirstButton extends StatelessWidget {
-  const _AddFirstButton();
-
-  @override
-  Widget build(BuildContext context) => FilledButton.icon(
-    onPressed: null,
-    icon: const Icon(Icons.add_rounded),
-    label: const Text('Ajouter un enchaînement'),
-  );
 }

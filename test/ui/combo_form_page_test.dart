@@ -148,7 +148,7 @@ void main() {
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
     // An overflow fails the test with an exception.
-    await pumpApp(tester);
+    await pumpApp(tester, keepView: true);
     await openForm(tester);
     // The name field scrolls away: the grid comes up under the sequence.
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -120));

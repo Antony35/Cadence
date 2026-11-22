@@ -27,11 +27,17 @@ class TechniqueImages {
     });
   }
 
-  /// `assets/techniques/<slug>.png` if the file exists, else null.
-  String? pathOf(Technique technique) {
-    final path = '$folder${technique.slug}.png';
-    return _paths.contains(path) ? path : null;
-  }
+  /// D2: the image of the technique (`assets/techniques/<slug>.png`), else
+  /// the image of its family (`family_<family>.png`), else null.
+  String? pathOf(Technique technique) =>
+      _existing('$folder${technique.slug}.png') ??
+      familyPathOf(technique.family);
+
+  /// The image of a family, if it exists.
+  String? familyPathOf(Family family) =>
+      _existing('${folder}family_${family.name}.png');
+
+  String? _existing(String path) => _paths.contains(path) ? path : null;
 }
 
 /// The icon of each family (V3), always shown with a name or a label.
@@ -46,7 +52,8 @@ extension FamilyIcon on Family {
   };
 }
 
-/// The image of a technique, or its family badge when there is none (D2).
+/// The image of a technique, or of its family, or the family icon when
+/// there is none (D2), straight on the background of the screen.
 class TechniqueImage extends StatelessWidget {
   const TechniqueImage(this.technique, {super.key, this.size = 40});
 
@@ -55,37 +62,22 @@ class TechniqueImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final family = technique.family;
     final path = context.watch<TechniqueImages>().pathOf(technique);
-    if (path == null) return FamilyBadge(technique.family, size: size);
-    return Image.asset(
-      path,
-      width: size,
-      height: size,
-      fit: BoxFit.contain,
-      // The technique name is always written next to the image.
-      excludeFromSemantics: true,
-    );
-  }
-}
-
-/// A square in the family color, with the family icon.
-class FamilyBadge extends StatelessWidget {
-  const FamilyBadge(this.family, {super.key, this.size = 40});
-
-  final Family family;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = CadenceColors.of(context).family(family);
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: colors.fill,
-        borderRadius: BorderRadius.circular(AppTheme.radius),
-      ),
-      child: Icon(family.icon, size: size * 0.55, color: colors.ink),
+    return SizedBox.square(
+      dimension: size,
+      child: path == null
+          ? Icon(
+              family.icon,
+              size: size * 0.6,
+              color: CadenceColors.of(context).family(family),
+            )
+          : Image.asset(
+              path,
+              fit: BoxFit.contain,
+              // The technique name is always written next to the image.
+              excludeFromSemantics: true,
+            ),
     );
   }
 }

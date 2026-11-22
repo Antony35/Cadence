@@ -134,7 +134,7 @@ void main() {
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
     // An overflow fails the test with an exception.
-    await pumpApp(tester, combos: combos);
+    await pumpApp(tester, combos: combos, keepView: true);
     expect(find.text('02 À RÉVISER'), findsOneWidget);
   });
 }

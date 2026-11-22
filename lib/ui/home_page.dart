@@ -6,6 +6,8 @@ import 'package:cadence/state/load_state.dart';
 import 'package:cadence/ui/combo_form_page.dart';
 import 'package:cadence/ui/combo_page.dart';
 import 'package:cadence/ui/techniques_page.dart';
+import 'package:cadence/ui/theme/app_theme.dart';
+import 'package:cadence/ui/widgets/brand.dart';
 import 'package:cadence/ui/widgets/combo_tile.dart';
 import 'package:cadence/ui/widgets/review_card.dart';
 import 'package:cadence/ui/widgets/search_filter_bar.dart';
@@ -94,31 +96,63 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('CADENCE')),
-      drawer: Drawer(
-        child: SafeArea(
-          child: ListView(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(28, 16, 16, 16),
-                child: Text(
-                  'CADENCE',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-              // Paramètres and À propos come with step 6.
-              ListTile(
-                leading: const Icon(Icons.grid_view_rounded),
-                title: Text(
-                  'TECHNIQUES',
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                onTap: _openTechniques,
-              ),
-            ],
-          ),
+      appBar: AppBar(
+        // The logo beside the name, like a poster header.
+        title: const Row(
+          children: [
+            BrandMark(size: 36),
+            SizedBox(width: 12),
+            // Shrinks rather than overflows with enlarged text.
+            Flexible(child: Text('CADENCE', overflow: TextOverflow.ellipsis)),
+          ],
         ),
       ),
+      drawer: Drawer(
+        child: ListView(
+          // The poster goes up under the status bar.
+          padding: EdgeInsets.zero,
+          children: [
+            const BrandPoster(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.gutter,
+                20,
+                AppTheme.gutter,
+                12,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'CADENCE',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  Text(
+                    "Carnet d'enchaînements",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(),
+            // Paramètres and À propos come with step 6.
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.gutter,
+              ),
+              leading: const Icon(Icons.grid_view_rounded),
+              title: Text(
+                'TECHNIQUES',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              onTap: _openTechniques,
+            ),
+          ],
+        ),
+      ),
+      // The main action of the app (N1): the gold + button.
       floatingActionButton: FloatingActionButton(
         onPressed: _create,
         tooltip: 'Ajouter un enchaînement',
@@ -135,6 +169,7 @@ class _HomePageState extends State<HomePage> {
           ),
           Empty() => MessageView(
             icon: Icons.sports_mma_rounded,
+            visual: const BrandMark(size: 160),
             title: 'Aucun enchaînement',
             text:
                 'Notez les enchaînements vus en cours : '
@@ -156,14 +191,19 @@ class _HomePageState extends State<HomePage> {
     final text = Theme.of(context).textTheme;
     return ListView(
       // Leaves room for the + button under the last combo.
-      padding: const EdgeInsets.only(top: 8, bottom: 96),
+      padding: const EdgeInsets.only(top: 16, bottom: 112),
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: AppTheme.gutter),
           child: ReviewCard(summary: _controller.summary),
         ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 28, 16, 4),
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.gutter,
+            40,
+            AppTheme.gutter,
+            8,
+          ),
           // One text with two styles: it wraps with enlarged text.
           child: Text.rich(
             TextSpan(
@@ -190,7 +230,11 @@ class _HomePageState extends State<HomePage> {
         else
           // Rows separated by thin lines, like the lines of a notebook.
           for (final (index, combo) in visible.indexed) ...[
-            if (index > 0) const Divider(indent: 16, endIndent: 16),
+            if (index > 0)
+              const Divider(
+                indent: AppTheme.gutter,
+                endIndent: AppTheme.gutter,
+              ),
             ComboTile(
               combo: combo,
               today: _controller.today,

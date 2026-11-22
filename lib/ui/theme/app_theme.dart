@@ -21,27 +21,33 @@ abstract final class AppTheme {
   /// One corner radius for buttons, fields, tiles and badges.
   static const radius = 4.0;
 
-  /// A cold off-white: no cream, which reads as a default of AI tools.
-  /// Bright gold cannot carry small text on a light background (contrast
-  /// 2.5:1), so [ColorScheme.primary] is a dark gold and the bright one only
-  /// fills [ColorScheme.primaryContainer].
+  /// The side margin of every page: room to breathe.
+  static const gutter = 24.0;
+
+  /// A cold off-white: no cream, which reads as a default of AI tools, and a
+  /// charcoal ink rather than a hard black.
+  ///
+  /// Two golds. [ColorScheme.primaryContainer] is the bright, matte gold of
+  /// the actions (buttons, + button), always with dark text on it. Bright
+  /// gold cannot carry small text on a light background (contrast 2.2:1),
+  /// so [ColorScheme.primary], for gold text, is a deeper gold.
   static const ColorScheme lightScheme = ColorScheme(
     brightness: Brightness.light,
-    primary: Color(0xFF7A5A0E),
+    primary: Color(0xFF85620F),
     onPrimary: Color(0xFFFFFFFF),
-    primaryContainer: Color(0xFFF3DFA2),
-    onPrimaryContainer: Color(0xFF2A2000),
-    secondary: Color(0xFF1A1A1A),
+    primaryContainer: Color(0xFFE0B54D),
+    onPrimaryContainer: Color(0xFF1F2324),
+    secondary: Color(0xFF2A2F30),
     onSecondary: Color(0xFFF4F4F2),
     secondaryContainer: Color(0xFFE3E3E0),
-    onSecondaryContainer: Color(0xFF1A1A1A),
+    onSecondaryContainer: Color(0xFF2A2F30),
     error: Color(0xFFB3261E),
     onError: Color(0xFFFFFFFF),
     errorContainer: Color(0xFFF9DEDC),
     onErrorContainer: Color(0xFF410E0B),
     surface: Color(0xFFF4F4F2),
-    onSurface: Color(0xFF1A1A1A),
-    onSurfaceVariant: Color(0xFF56585B),
+    onSurface: Color(0xFF2A2F30),
+    onSurfaceVariant: Color(0xFF606266),
     surfaceContainerLowest: Color(0xFFFFFFFF),
     surfaceContainerLow: Color(0xFFF9F9F8),
     surfaceContainer: Color(0xFFEBEBE8),
@@ -51,30 +57,33 @@ abstract final class AppTheme {
     outlineVariant: Color(0xFFD6D6D2),
   );
 
+  /// The charcoal of the logo poster (#1F2324), slightly blue-grey, and
+  /// its off-white; no more brown-black.
   static const ColorScheme darkScheme = ColorScheme(
     brightness: Brightness.dark,
-    primary: Color(0xFFE0B44C),
-    onPrimary: Color(0xFF2A2000),
-    primaryContainer: Color(0xFF5A4208),
-    onPrimaryContainer: Color(0xFFF8E3A8),
-    secondary: Color(0xFFF2EDE4),
-    onSecondary: Color(0xFF1F1B16),
-    secondaryContainer: Color(0xFF353028),
-    onSecondaryContainer: Color(0xFFF2EDE4),
+    primary: Color(0xFFE0B54D),
+    onPrimary: Color(0xFF1F2324),
+    // The same action gold as in the light theme.
+    primaryContainer: Color(0xFFE0B54D),
+    onPrimaryContainer: Color(0xFF1F2324),
+    secondary: Color(0xFFECEAE3),
+    onSecondary: Color(0xFF1F2324),
+    secondaryContainer: Color(0xFF30373A),
+    onSecondaryContainer: Color(0xFFECEAE3),
     error: Color(0xFFF2B8B5),
     onError: Color(0xFF601410),
     errorContainer: Color(0xFF8C1D18),
     onErrorContainer: Color(0xFFF9DEDC),
-    surface: Color(0xFF121110),
-    onSurface: Color(0xFFF2EDE4),
-    onSurfaceVariant: Color(0xFFC9C1B2),
-    surfaceContainerLowest: Color(0xFF1E1C19),
-    surfaceContainerLow: Color(0xFF191715),
-    surfaceContainer: Color(0xFF24211D),
-    surfaceContainerHigh: Color(0xFF2E2A25),
-    surfaceContainerHighest: Color(0xFF353028),
-    outline: Color(0xFF9A907E),
-    outlineVariant: Color(0xFF48423A),
+    surface: Color(0xFF1A1E1F),
+    onSurface: Color(0xFFECEAE3),
+    onSurfaceVariant: Color(0xFFB9BDB9),
+    surfaceContainerLowest: Color(0xFF1F2324),
+    surfaceContainerLow: Color(0xFF1D2122),
+    surfaceContainer: Color(0xFF252A2C),
+    surfaceContainerHigh: Color(0xFF2D3335),
+    surfaceContainerHighest: Color(0xFF353C3E),
+    outline: Color(0xFF8D9390),
+    outlineVariant: Color(0xFF3B4244),
   );
 
   /// Our own scale rather than Material's default one. Display, title and
@@ -173,11 +182,24 @@ abstract final class AppTheme {
         thickness: 1,
         space: 1,
       ),
+      // The main action of a screen: the action gold, tall and bold.
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(shape: corners, textStyle: buttonText),
+        style: FilledButton.styleFrom(
+          shape: corners,
+          textStyle: buttonText?.copyWith(fontWeight: FontWeight.w700),
+          backgroundColor: scheme.primaryContainer,
+          foregroundColor: scheme.onPrimaryContainer,
+          minimumSize: const Size(64, 52),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+        ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(shape: corners, textStyle: buttonText),
+        style: OutlinedButton.styleFrom(
+          shape: corners,
+          textStyle: buttonText,
+          minimumSize: const Size(64, 48),
+          side: BorderSide(color: scheme.outline),
+        ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(shape: corners, textStyle: buttonText),
@@ -186,6 +208,7 @@ abstract final class AppTheme {
         shape: corners,
         backgroundColor: scheme.primaryContainer,
         foregroundColor: scheme.onPrimaryContainer,
+        elevation: 2,
       ),
       chipTheme: ChipThemeData(shape: corners, labelStyle: _text.labelMedium),
       segmentedButtonTheme: SegmentedButtonThemeData(
@@ -212,12 +235,8 @@ abstract final class AppTheme {
   }
 }
 
-/// The badge colors of a family: [fill] for the square, [ink] for its icon.
-typedef FamilyColors = ({Color fill, Color ink});
-
-/// The « À réviser » round board: [ink] for text, [accent] for the figure
-/// and the button, [muted] for the secondary line. The button label is
-/// written in [fill].
+/// The « À réviser » round board: [ink] for text, [accent] for the figure,
+/// [muted] for the secondary line. Its button is a normal action button.
 typedef ScoreboardColors = ({Color fill, Color ink, Color accent, Color muted});
 
 /// The colors Material has no slot for: one per family (V3), and the round
@@ -230,55 +249,58 @@ typedef ScoreboardColors = ({Color fill, Color ink, Color accent, Color muted});
 class CadenceColors extends ThemeExtension<CadenceColors> {
   const CadenceColors(this.families, this.scoreboard);
 
-  /// Pale squares with a dark icon of the same hue; a grey board with a
+  /// Muted, earthy hues, dark enough to stand out on the off-white (3:1
+  /// at least, the threshold for borders and icons); a grey board with a
   /// dark gold figure, like the rest of the light theme.
   static const light = CadenceColors(
     {
-      Family.punch: (fill: Color(0xFFF6D5CF), ink: Color(0xFF7D2418)),
-      Family.elbow: (fill: Color(0xFFF5E0C3), ink: Color(0xFF6E3F0C)),
-      Family.kick: (fill: Color(0xFFD3E2F4), ink: Color(0xFF1F4B7A)),
-      Family.knee: (fill: Color(0xFFE3D6F0), ink: Color(0xFF54307A)),
-      Family.defense: (fill: Color(0xFFD4EBD9), ink: Color(0xFF1F5C33)),
-      Family.footwork: (fill: Color(0xFFD9E3E3), ink: Color(0xFF2E4F50)),
+      Family.punch: Color(0xFFA8473A),
+      Family.elbow: Color(0xFF9A6420),
+      Family.kick: Color(0xFF3F6A9A),
+      Family.knee: Color(0xFF765A9C),
+      Family.defense: Color(0xFF4A7A55),
+      Family.footwork: Color(0xFF3F7576),
     },
     (
-      fill: Color(0xFFE3E3E0),
-      ink: Color(0xFF1A1A1A),
-      accent: Color(0xFF7A5A0E),
-      muted: Color(0xFF505255),
+      fill: Color(0xFFEBEBE8),
+      ink: Color(0xFF2A2F30),
+      accent: Color(0xFF85620F),
+      muted: Color(0xFF55575B),
     ),
   );
 
-  /// Deep squares with a pale icon: the same hues, reversed. The board is
-  /// lifted a little above the black background.
+  /// The same hues, lighter, on the charcoal. The board is lifted a little
+  /// above the background.
   static const dark = CadenceColors(
     {
-      Family.punch: (fill: Color(0xFF5C1F16), ink: Color(0xFFF6D5CF)),
-      Family.elbow: (fill: Color(0xFF5A3510), ink: Color(0xFFF5E0C3)),
-      Family.kick: (fill: Color(0xFF1B3A5C), ink: Color(0xFFD3E2F4)),
-      Family.knee: (fill: Color(0xFF3E2559), ink: Color(0xFFE3D6F0)),
-      Family.defense: (fill: Color(0xFF1C4428), ink: Color(0xFFD4EBD9)),
-      Family.footwork: (fill: Color(0xFF2A3B3C), ink: Color(0xFFD9E3E3)),
+      Family.punch: Color(0xFFD98A7E),
+      Family.elbow: Color(0xFFD1A26A),
+      Family.kick: Color(0xFF8DB0D6),
+      Family.knee: Color(0xFFB5A0D2),
+      Family.defense: Color(0xFF8DBE98),
+      Family.footwork: Color(0xFF85BDBD),
     },
     (
-      fill: Color(0xFF262320),
-      ink: Color(0xFFF2EDE4),
-      accent: Color(0xFFE0B44C),
-      muted: Color(0xFFC9C1B2),
+      fill: Color(0xFF262B2D),
+      ink: Color(0xFFECEAE3),
+      accent: Color(0xFFE0B54D),
+      muted: Color(0xFFB9BDB9),
     ),
   );
 
-  final Map<Family, FamilyColors> families;
+  /// One color per family: the fine line around its images, its icon, the
+  /// square of its filter tab.
+  final Map<Family, Color> families;
   final ScoreboardColors scoreboard;
 
-  FamilyColors family(Family family) => families[family]!;
+  Color family(Family family) => families[family]!;
 
   static CadenceColors of(BuildContext context) =>
       Theme.of(context).extension<CadenceColors>()!;
 
   @override
   CadenceColors copyWith({
-    Map<Family, FamilyColors>? families,
+    Map<Family, Color>? families,
     ScoreboardColors? scoreboard,
   }) => CadenceColors(families ?? this.families, scoreboard ?? this.scoreboard);
 
@@ -291,10 +313,7 @@ class CadenceColors extends ThemeExtension<CadenceColors> {
     return CadenceColors(
       {
         for (final family in Family.values)
-          family: (
-            fill: mix(this.family(family).fill, other.family(family).fill),
-            ink: mix(this.family(family).ink, other.family(family).ink),
-          ),
+          family: mix(this.family(family), other.family(family)),
       },
       (
         fill: mix(a.fill, b.fill),

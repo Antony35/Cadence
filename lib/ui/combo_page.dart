@@ -5,6 +5,7 @@ import 'package:cadence/state/combo_controller.dart';
 import 'package:cadence/state/load_state.dart';
 import 'package:cadence/ui/combo_form_page.dart';
 import 'package:cadence/ui/format.dart';
+import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/fact_row.dart';
 import 'package:cadence/ui/widgets/state_views.dart';
 import 'package:cadence/ui/widgets/technique_image.dart';
@@ -132,12 +133,15 @@ class _ComboPageState extends State<ComboPage> {
     final due = dueLabel(combo.dueOn, _controller.today);
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.gutter,
+        vertical: 20,
+      ),
       children: [
         Text(combo.displayName.toUpperCase(), style: text.headlineSmall),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         FactRow('Prochaine', '$due · ${dayLabel(combo.dueOn)}'),
-        const SizedBox(height: 24),
+        const SizedBox(height: 40),
         Text.rich(
           TextSpan(
             style: text.titleMedium,
@@ -154,7 +158,7 @@ class _ComboPageState extends State<ComboPage> {
         for (final (index, step) in combo.steps.indexed) ...[
           if (index > 0) const Divider(),
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: Row(
               children: [
                 SizedBox(
@@ -184,7 +188,7 @@ class _ComboPageState extends State<ComboPage> {
             ),
           ),
         ],
-        const SizedBox(height: 24),
+        const SizedBox(height: 40),
         FactRow('Révisions', plural(reviews, 'révision', 'révisions')),
         FactRow('Créé le', dayLabel(combo.createdAt)),
         FactRow('Modifié le', dayLabel(combo.updatedAt)),

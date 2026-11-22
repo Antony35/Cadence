@@ -34,6 +34,8 @@ flutter:
   # A missing image is replaced by the family badge.
   assets:
     - assets/techniques/
+    # The logo: the poster and its gloves, square.
+    - assets/brand/
   # Barlow (text) and Barlow Condensed (titles, figures, labels), bundled
   # because the app works offline. SIL Open Font License: assets/fonts/OFL.txt.
   fonts:

@@ -22,9 +22,9 @@ class TechniqueGrid extends StatelessWidget {
     required this.onTap,
   }) : sliver = true;
 
-  /// The square that holds the image or the badge.
+  /// The space that holds the image or the family icon.
   static const tileSize = 88.0;
-  static const imageSize = 56.0;
+  static const imageSize = 80.0;
 
   final List<Technique> techniques;
   final ValueChanged<Technique>? onTap;
@@ -37,11 +37,16 @@ class TechniqueGrid extends StatelessWidget {
     // with the text size instead of cutting the name.
     final line =
         MediaQuery.textScalerOf(context).scale(label.fontSize!) * label.height!;
-    const padding = EdgeInsets.fromLTRB(16, 4, 16, 16);
+    const padding = EdgeInsets.fromLTRB(
+      AppTheme.gutter,
+      12,
+      AppTheme.gutter,
+      32,
+    );
     final layout = SliverGridDelegateWithFixedCrossAxisCount(
       crossAxisCount: 3,
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 8,
+      mainAxisSpacing: 20,
+      crossAxisSpacing: 12,
       mainAxisExtent: tileSize + 8 + 2 * line,
     );
 
@@ -82,8 +87,7 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    // No card: a grey square for the image, the name under it. Disabled
+    // No card, no frame: the image, the name under it. Disabled
     // tiles are faded.
     return Opacity(
       opacity: onTap == null ? 0.4 : 1,
@@ -92,15 +96,11 @@ class _Tile extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.radius),
         child: Column(
           children: [
-            Container(
+            SizedBox(
               height: TechniqueGrid.tileSize,
-              width: double.infinity,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: scheme.surfaceContainer,
-                borderRadius: BorderRadius.circular(AppTheme.radius),
+              child: Center(
+                child: TechniqueImage(technique, size: TechniqueGrid.imageSize),
               ),
-              child: TechniqueImage(technique, size: TechniqueGrid.imageSize),
             ),
             const SizedBox(height: 8),
             Text(

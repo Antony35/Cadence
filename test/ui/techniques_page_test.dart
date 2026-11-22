@@ -61,9 +61,18 @@ void main() {
     addTearDown(tester.view.reset);
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
-    await pumpApp(tester);
+    await pumpApp(tester, keepView: true);
     await tester.tap(find.byTooltip('Ouvrir le menu de navigation'));
     await tester.pumpAndSettle();
+    // On so small a screen, the menu scrolls below the poster.
+    await tester.scrollUntilVisible(
+      find.text('TECHNIQUES'),
+      100,
+      scrollable: find.descendant(
+        of: find.byType(Drawer),
+        matching: find.byType(Scrollable),
+      ),
+    );
     await tester.tap(find.text('TECHNIQUES'));
     await tester.pumpAndSettle();
 

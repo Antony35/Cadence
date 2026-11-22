@@ -25,7 +25,7 @@ class SearchFilterBar extends StatefulWidget {
   final ValueChanged<Family?> onFamilyChanged;
 
   /// Fixed, so that a screen can pin the bar (the form).
-  static const height = 52.0;
+  static const height = 56.0;
 
   @override
   State<SearchFilterBar> createState() => _SearchFilterBarState();
@@ -37,6 +37,11 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
   late final _text = TextEditingController(text: widget.filter.query);
   final _focus = FocusNode();
   bool _editing = false;
+
+  // Whether tabs are hidden beyond each edge: those edges fade out, so the
+  // user sees that the line scrolls.
+  bool _moreBefore = false;
+  bool _moreAfter = false;
 
   @override
   void initState() {
@@ -65,6 +70,20 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
     super.dispose();
   }
 
+  /// Called on each scroll, and when the line is first laid out or resized.
+  bool _onScroll(ScrollMetrics metrics) {
+    final before = metrics.pixels > metrics.minScrollExtent + 1;
+    final after = metrics.pixels < metrics.maxScrollExtent - 1;
+    if (before != _moreBefore || after != _moreAfter) {
+      setState(() {
+        _moreBefore = before;
+        _moreAfter = after;
+      });
+    }
+    // Lets the notification go on to the screen, as if it was not caught.
+    return false;
+  }
+
   void _clearQuery() {
     _text.clear();
     widget.onQueryChanged('');
@@ -80,7 +99,10 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
 
   Widget _field() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.gutter,
+        vertical: 4,
+      ),
       child: TextField(
         controller: _text,
         focusNode: _focus,
@@ -115,44 +137,76 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
     );
   }
 
+  /// Fades the tabs out at the edges where more are hidden. The mask is
+  /// opaque in the middle and transparent at a faded edge: [BlendMode.dstIn]
+  /// keeps the tabs only where the mask is opaque.
+  Widget _fadeEdges(Widget child) {
+    const fade = 40.0;
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (rect) {
+        final edge = (fade / rect.width).clamp(0.0, 0.5);
+        return LinearGradient(
+          colors: [
+            _moreBefore ? Colors.transparent : Colors.black,
+            Colors.black,
+            Colors.black,
+            _moreAfter ? Colors.transparent : Colors.black,
+          ],
+          stops: [0, edge, 1 - edge, 1],
+        ).createShader(rect);
+      },
+      child: child,
+    );
+  }
+
   Widget _tabs() {
     final query = widget.filter.query.trim();
     final selected = widget.filter.family;
     return Row(
       children: [
         Expanded(
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.only(left: 8),
-            children: [
-              if (query.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Center(
-                    child: InputChip(
-                      label: Text('« $query »'),
-                      onPressed: () => setState(() => _editing = true),
-                      onDeleted: _clearQuery,
-                      deleteButtonTooltipMessage: 'Effacer la recherche',
+          // ScrollMetricsNotification: the first layout, before any scroll.
+          child: NotificationListener<ScrollMetricsNotification>(
+            onNotification: (n) => _onScroll(n.metrics),
+            child: NotificationListener<ScrollUpdateNotification>(
+              onNotification: (n) => _onScroll(n.metrics),
+              child: _fadeEdges(
+                ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.only(left: AppTheme.gutter - 12),
+                  children: [
+                    if (query.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Center(
+                          child: InputChip(
+                            label: Text('« $query »'),
+                            onPressed: () => setState(() => _editing = true),
+                            onDeleted: _clearQuery,
+                            deleteButtonTooltipMessage: 'Effacer la recherche',
+                          ),
+                        ),
+                      ),
+                    _Tab(
+                      label: 'Toutes',
+                      selected: selected == null,
+                      onTap: () => widget.onFamilyChanged(null),
                     ),
-                  ),
+                    for (final family in Family.values)
+                      _Tab(
+                        label: family.label,
+                        family: family,
+                        selected: selected == family,
+                        // Touching the selected family again goes back to « Toutes ».
+                        onTap: () => widget.onFamilyChanged(
+                          selected == family ? null : family,
+                        ),
+                      ),
+                  ],
                 ),
-              _Tab(
-                label: 'Toutes',
-                selected: selected == null,
-                onTap: () => widget.onFamilyChanged(null),
               ),
-              for (final family in Family.values)
-                _Tab(
-                  label: family.label,
-                  family: family,
-                  selected: selected == family,
-                  // Touching the selected family again goes back to « Toutes ».
-                  onTap: () => widget.onFamilyChanged(
-                    selected == family ? null : family,
-                  ),
-                ),
-            ],
+            ),
           ),
         ),
         IconButton(
@@ -160,7 +214,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
           icon: const Icon(Icons.search_rounded),
           onPressed: () => setState(() => _editing = true),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: 12),
       ],
     );
   }
@@ -194,9 +248,18 @@ class _Tab extends StatelessWidget {
       selected: selected,
       button: true,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          // The touched tab slides toward the middle: the next ones appear.
+          Scrollable.ensureVisible(
+            context,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
+          onTap();
+        },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
@@ -211,7 +274,7 @@ class _Tab extends StatelessWidget {
                 SizedBox.square(
                   dimension: 8,
                   child: ColoredBox(
-                    color: CadenceColors.of(context).family(family).ink,
+                    color: CadenceColors.of(context).family(family),
                   ),
                 ),
                 const SizedBox(width: 6),

@@ -1,6 +1,7 @@
 import 'package:cadence/models/combo.dart';
 import 'package:cadence/models/dates.dart';
 import 'package:cadence/ui/format.dart';
+import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/technique_image.dart';
 import 'package:flutter/material.dart';
 
@@ -34,7 +35,10 @@ class ComboTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.gutter,
+          vertical: 18,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -62,14 +66,14 @@ class ComboTile extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Wrap(
-              spacing: 4,
-              runSpacing: 4,
+              spacing: 6,
+              runSpacing: 6,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 for (final step in combo.steps.take(maxThumbnails))
-                  TechniqueImage(step.technique, size: 28),
+                  TechniqueImage(step.technique, size: 24),
                 if (hidden > 0)
                   Text(
                     '+$hidden',

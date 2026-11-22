@@ -48,6 +48,13 @@ class CadenceApp extends StatelessWidget {
         locale: const Locale('fr'),
         supportedLocales: const [Locale('fr')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        // Android draws the app under its navigation bar (gestures or
+        // buttons). Every screen stops above it: one SafeArea around all of
+        // them, on a background of the theme's color.
+        builder: (context, child) => ColoredBox(
+          color: Theme.of(context).colorScheme.surface,
+          child: SafeArea(top: false, child: child!),
+        ),
         home: const HomePage(),
       ),
     );

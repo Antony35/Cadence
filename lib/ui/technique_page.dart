@@ -50,35 +50,29 @@ class _TechniquePageState extends State<TechniquePage> {
   @override
   Widget build(BuildContext context) {
     final technique = widget.technique;
-    final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(title: Text(technique.family.label.toUpperCase())),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.gutter,
+          vertical: 20,
+        ),
         children: [
-          // A large panel, as on a fighter's sheet.
-          Container(
-            height: 240,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(AppTheme.radius),
-            ),
-            child: TechniqueImage(technique, size: 180),
-          ),
-          const SizedBox(height: 16),
+          // A large figure, as on a fighter's sheet.
+          Center(child: TechniqueImage(technique, size: 220)),
+          const SizedBox(height: 24),
           Text(technique.name.toUpperCase(), style: text.headlineSmall),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           FactRow('Famille', technique.family.label),
           if (sidesText(technique.sides) case final sides?)
             FactRow('Côté', sides),
           if (targetsText(technique.targets) case final targets?)
             FactRow('Cible', targets),
-          const SizedBox(height: 28),
+          const SizedBox(height: 40),
           Text('UTILISÉE DANS', style: text.titleMedium),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           ListenableBuilder(
             listenable: _controller,
             builder: (context, _) => switch (_controller.combosUsing) {

@@ -11,7 +11,8 @@ class LoadingView extends StatelessWidget {
       const Center(child: CircularProgressIndicator());
 }
 
-/// An icon, a title, a sentence and an optional button, centered.
+/// An icon (or a larger [visual]), a title, a sentence and an optional
+/// button, centered.
 class MessageView extends StatelessWidget {
   const MessageView({
     super.key,
@@ -19,9 +20,13 @@ class MessageView extends StatelessWidget {
     required this.title,
     required this.text,
     this.action,
+    this.visual,
   });
 
   final IconData icon;
+
+  /// Replaces the icon: the logo on the empty main screen.
+  final Widget? visual;
   final String title;
   final String text;
   final Widget? action;
@@ -33,11 +38,11 @@ class MessageView extends StatelessWidget {
     return Center(
       // Scrolls on a small screen or with enlarged text.
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 32, color: scheme.onSurfaceVariant),
+            visual ?? Icon(icon, size: 32, color: scheme.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
               title.toUpperCase(),

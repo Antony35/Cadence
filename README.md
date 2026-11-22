@@ -62,6 +62,10 @@ données.
 
 Chaque paquet est ajouté à l'étape qui s'en sert.
 
+Illustrations : le personnage, ses poses et le logo sont générés par IA
+(Gemini), à partir d'une fiche personnage commune ; les prompts sont gardés
+pour que la série reste homogène.
+
 Polices : [Barlow et Barlow Condensed](https://github.com/jpt/barlow), de
 Jeremy Tribby, sous licence SIL Open Font License 1.1
 (`assets/fonts/OFL.txt`). Elles sont embarquées dans l'application, qui

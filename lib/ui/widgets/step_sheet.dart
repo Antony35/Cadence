@@ -1,5 +1,6 @@
 import 'package:cadence/models/combo.dart';
 import 'package:cadence/models/technique.dart';
+import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/technique_image.dart';
 import 'package:flutter/material.dart';
 
@@ -89,7 +90,12 @@ class _StepSheetState extends State<_StepSheet> {
 
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.fromLTRB(
+          AppTheme.gutter,
+          0,
+          AppTheme.gutter,
+          24,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -146,14 +152,14 @@ class _StepSheetState extends State<_StepSheet> {
                     setState(() => _target = chosen.single),
               ),
             ],
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             // What the list and the voice will say (D3).
             Text(
               '« ${_step.label} »',
               style: text.titleSmall,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             if (editing) ...[
               Row(
                 children: [
@@ -209,7 +215,7 @@ class _Label extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 16, bottom: 8),
+    padding: const EdgeInsets.only(top: 24, bottom: 8),
     child: Text(
       text.toUpperCase(),
       style: Theme.of(context).textTheme.labelMedium

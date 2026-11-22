@@ -72,9 +72,20 @@ void main() {
   const families = {'light': CadenceColors.light, 'dark': CadenceColors.dark};
   for (final MapEntry(key: name, value: colors) in families.entries) {
     for (final family in Family.values) {
-      test('V3 — $name ${family.name} badge: icon on disc reaches 4.5:1', () {
-        final (:fill, :ink) = colors.family(family);
-        expect(contrast(ink, fill), greaterThanOrEqualTo(4.5));
+      // A border and an icon are not text: WCAG asks 3:1 (1.4.11). Checked
+      // on the background and on the cards (the surface containers).
+      test('V3 — $name ${family.name}: the line reaches 3:1', () {
+        final line = colors.family(family);
+        final scheme = name == 'light'
+            ? AppTheme.lightScheme
+            : AppTheme.darkScheme;
+        for (final background in [
+          scheme.surface,
+          scheme.surfaceContainerLowest,
+          scheme.surfaceContainer,
+        ]) {
+          expect(contrast(line, background), greaterThanOrEqualTo(3));
+        }
       });
     }
   }
@@ -85,8 +96,6 @@ void main() {
       expect(contrast(ink, fill), greaterThanOrEqualTo(4.5));
       expect(contrast(accent, fill), greaterThanOrEqualTo(4.5));
       expect(contrast(muted, fill), greaterThanOrEqualTo(4.5));
-      // The gold button carries its label in the board color.
-      expect(contrast(fill, accent), greaterThanOrEqualTo(4.5));
     });
   }
 

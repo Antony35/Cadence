@@ -171,7 +171,12 @@ class _ComboFormPageState extends State<ComboFormPage> {
             // At the bottom, full width, within reach of the thumb.
             bottomNavigationBar: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                padding: const EdgeInsets.fromLTRB(
+                  AppTheme.gutter,
+                  12,
+                  AppTheme.gutter,
+                  16,
+                ),
                 child: FilledButton(
                   // F13: disabled while saving, so two touches save once.
                   onPressed: saving ? null : _save,
@@ -186,7 +191,12 @@ class _ComboFormPageState extends State<ComboFormPage> {
               slivers: [
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppTheme.gutter,
+                      16,
+                      AppTheme.gutter,
+                      0,
+                    ),
                     // The Flutter equivalent of a FormType: the fields and
                     // their constraints.
                     child: Form(
@@ -317,7 +327,7 @@ class _Sequence extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     double line(TextStyle? style) =>
         scaler.scale(style!.fontSize!) * style.height!;
-    return 12 + line(text.titleMedium) + _rowHeight(context);
+    return 24 + line(text.titleMedium) + _rowHeight(context);
   }
 
   static double _rowHeight(BuildContext context) {
@@ -339,7 +349,12 @@ class _Sequence extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.gutter,
+            16,
+            AppTheme.gutter,
+            8,
+          ),
           child: Text.rich(
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -359,7 +374,9 @@ class _Sequence extends StatelessWidget {
           height: _rowHeight(context),
           child: steps.isEmpty
               ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.gutter,
+                  ),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -372,7 +389,9 @@ class _Sequence extends StatelessWidget {
                 )
               : ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.gutter - 8,
+                  ),
                   itemCount: steps.length,
                   itemBuilder: (context, index) => _StepTile(
                     index: index,
@@ -453,8 +472,13 @@ class _ProblemBanner extends StatelessWidget {
             'réessayez.',
     };
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-      padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+      margin: const EdgeInsets.fromLTRB(
+        AppTheme.gutter,
+        16,
+        AppTheme.gutter,
+        0,
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
       decoration: BoxDecoration(
         color: scheme.errorContainer,
         borderRadius: BorderRadius.circular(AppTheme.radius),

@@ -103,6 +103,20 @@ void main() {
       ]);
     });
 
+    test('F25 — findWithTechnique keeps the combos that use it', () async {
+      final both = await create(['teep', 'jab', 'cross']);
+      await create(['jab', 'hook']);
+      final last = await create(['low_kick', 'teep']);
+      expect((await combos.findWithTechnique('teep')).map((c) => c.id), [
+        both.id,
+        last.id,
+      ]);
+      // All the steps come back, not only the matching one.
+      expect((await combos.findWithTechnique('teep')).first, both);
+      expect(await combos.findWithTechnique('clinch'), isEmpty);
+      expect(await combos.findWithTechnique('unknown'), isEmpty);
+    });
+
     test('each combo gets its own steps, in order', () async {
       await create(['jab', 'cross']);
       await create(['teep', 'low_kick', 'slip']);

@@ -22,6 +22,10 @@ abstract interface class ComboRepository {
   /// Only the combos due on [today] or before (D6), in review order.
   Future<List<Combo>> findDue(DateTime today);
 
+  /// The combos that use the technique [slug] at least once, in review
+  /// order: the « Utilisée dans » list of the technique sheet (F25).
+  Future<List<Combo>> findWithTechnique(String slug);
+
   /// Throws [NotFoundException].
   Future<Combo> findById(int id);
 

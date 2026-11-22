@@ -1,3 +1,4 @@
+import 'package:cadence/models/technique.dart';
 import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,6 +67,16 @@ void main() {
         );
       });
     });
+  }
+
+  const families = {'light': CadenceColors.light, 'dark': CadenceColors.dark};
+  for (final MapEntry(key: name, value: colors) in families.entries) {
+    for (final family in Family.values) {
+      test('V3 — $name ${family.name} badge: icon on disc reaches 4.5:1', () {
+        final (:fill, :ink) = colors.family(family);
+        expect(contrast(ink, fill), greaterThanOrEqualTo(4.5));
+      });
+    }
   }
 
   test('V1 — the light theme uses no pure black', () {

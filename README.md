@@ -22,7 +22,7 @@ semaine à l'autre, les enchaînements montrés par son professeur.
 | 0 | Projet, thème, intégration continue | Fait |
 | 1 | Modèles et règles métier | Fait |
 | 2 | Base de données SQLite | Fait |
-| 3 | Écran principal | À venir |
+| 3 | Écran principal | Fait |
 | 4 | Ajouter et corriger un enchaînement | À venir |
 | 5 | Séance de révision vocale | À venir |
 | 6 | Réglages et finitions | À venir |
@@ -56,6 +56,9 @@ données.
 | `freezed`, `freezed_annotation`, `build_runner` | Les objets du modèle sont immuables. `freezed` écrit pour eux `==`, `hashCode`, `copyWith` et `toString` : sans lui, chaque ajout de champ obligerait à modifier ces quatre méthodes à la main, avec le risque d'en oublier une. Le mode « classe classique » est utilisé : la classe reste une classe Dart ordinaire. |
 | `drift`, `drift_flutter`, `drift_dev` | ORM sur SQLite. Les tables sont décrites en Dart, drift écrit le SQL. Choisi pour les migrations versionnées (l'application va évoluer) et pour les requêtes vérifiées à la compilation. drift n'est utilisé que dans `lib/data/drift/`. |
 
+| `provider` | Rend les services (repositories, horloge) accessibles à tous les écrans, comme le conteneur de services de Symfony : un écran demande ce qu'il utilise, sans qu'on le lui transmette d'écran en écran. Choisi en vue de la V2 (profil et statistiques partagés entre écrans). |
+| `flutter_localizations` (SDK) | Les textes de Material en français (infobulles, boutons système). |
+
 Chaque paquet est ajouté à l'étape qui s'en sert.
 
 ## Lancer le projet
@@ -72,6 +75,29 @@ flutter run
 La deuxième commande génère les fichiers `*.freezed.dart` et `*.g.dart`
 (voir « Dépendances »). Ils ne sont pas versionnés : on la relance après
 chaque modification d'un modèle ou d'une table.
+
+Pour essayer l'application avec dix enchaînements de démonstration
+(échéances variées), sur une installation neuve :
+
+```bash
+flutter run --dart-define=CADENCE_DEMO=true
+```
+
+Sans cette option, l'application démarre vide, comme chez un nouvel
+utilisateur.
+
+## Architecture
+
+```
+lib/
+  models/   objets et règles métier, purs (aucun Flutter, aucune base)
+  data/     contrats des repositories ; drift/ : leur implémentation SQLite
+  state/    un contrôleur par écran (ChangeNotifier), les quatre états
+  ui/       écrans et composants ; theme/ : toutes les couleurs
+```
+
+Un écran ne parle qu'à son contrôleur, qui ne connaît que les contrats de
+`data/`. Les services sont créés une fois dans `main.dart`.
 
 ## Vérifier la qualité
 

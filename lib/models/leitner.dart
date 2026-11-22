@@ -4,6 +4,10 @@ import 'package:cadence/models/combo.dart';
 import 'package:cadence/models/dates.dart';
 import 'package:cadence/models/review.dart';
 
+/// The figures of the « À réviser » card (F1). A record: a group of named
+/// values, compared by value, without writing a class.
+typedef ReviewSummary = ({int due, int overdue, int total});
+
 /// Spaced repetition with Leitner boxes (D5 to D7).
 ///
 /// A combo starts in box 1. Each box has a waiting time before the next
@@ -37,6 +41,14 @@ abstract final class Leitner {
   /// D6: due before today.
   static bool isOverdue(Combo combo, DateTime today) =>
       combo.dueOn.isBefore(dateOnly(today));
+
+  /// F1: how many combos are due today, how many of them are late, and how
+  /// many combos there are in all.
+  static ReviewSummary summarize(Iterable<Combo> combos, DateTime today) => (
+    due: combos.where((combo) => isDue(combo, today)).length,
+    overdue: combos.where((combo) => isOverdue(combo, today)).length,
+    total: combos.length,
+  );
 
   /// D7: the most overdue first, then the lowest box, then the oldest.
   /// Also the order of the main list (F3).

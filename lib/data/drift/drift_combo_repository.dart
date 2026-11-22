@@ -24,6 +24,18 @@ class DriftComboRepository implements ComboRepository {
         combos.dueOn.isSmallerOrEqualValue(const DayConverter().toSql(today)),
   );
 
+  /// `WHERE id IN (SELECT combo_id FROM combo_steps WHERE technique_id = ?)`,
+  /// through the index on `combo_steps.technique_id`.
+  @override
+  Future<List<Combo>> findWithTechnique(String slug) async {
+    final techniqueId = (await _techniques.idBySlug())[slug];
+    if (techniqueId == null) return const [];
+    final usedIn = _db.selectOnly(_db.comboSteps)
+      ..addColumns([_db.comboSteps.comboId])
+      ..where(_db.comboSteps.techniqueId.equals(techniqueId));
+    return _load((combos) => combos.id.isInQuery(usedIn));
+  }
+
   @override
   Future<Combo> findById(int id) async {
     final found = await _load((combos) => combos.id.equals(id));

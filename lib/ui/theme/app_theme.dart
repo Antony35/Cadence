@@ -1,3 +1,4 @@
+import 'package:cadence/models/technique.dart';
 import 'package:flutter/material.dart';
 
 /// The only place where colors are declared. Screens read them through
@@ -5,8 +6,8 @@ import 'package:flutter/material.dart';
 ///
 /// Palette: black and gold, after the gloves of the illustrations.
 abstract final class AppTheme {
-  static final ThemeData light = _build(lightScheme);
-  static final ThemeData dark = _build(darkScheme);
+  static final ThemeData light = _build(lightScheme, CadenceColors.light);
+  static final ThemeData dark = _build(darkScheme, CadenceColors.dark);
 
   /// Bright gold cannot carry small text on a light background (contrast
   /// 2.5:1), so [ColorScheme.primary] is a dark gold and the bright one only
@@ -63,9 +64,10 @@ abstract final class AppTheme {
     outlineVariant: Color(0xFF48423A),
   );
 
-  static ThemeData _build(ColorScheme scheme) {
+  static ThemeData _build(ColorScheme scheme, CadenceColors cadence) {
     return ThemeData(
       colorScheme: scheme,
+      extensions: [cadence],
       scaffoldBackgroundColor: scheme.surface,
       appBarTheme: AppBarThemeData(
         backgroundColor: scheme.surface,
@@ -83,5 +85,70 @@ abstract final class AppTheme {
         ),
       ),
     );
+  }
+}
+
+/// The badge colors of a family: [fill] for the disc, [ink] for its icon.
+typedef FamilyColors = ({Color fill, Color ink});
+
+/// The colors Material has no slot for: one per family (V3).
+///
+/// A [ThemeExtension] is added to [ThemeData], so each theme has its own
+/// values and screens read them like the others:
+/// `CadenceColors.of(context).family(Family.kick)`.
+@immutable
+class CadenceColors extends ThemeExtension<CadenceColors> {
+  const CadenceColors(this.families);
+
+  /// Pale discs with a dark icon of the same hue.
+  static const light = CadenceColors({
+    Family.punch: (fill: Color(0xFFF6D5CF), ink: Color(0xFF7D2418)),
+    Family.elbow: (fill: Color(0xFFF5E0C3), ink: Color(0xFF6E3F0C)),
+    Family.kick: (fill: Color(0xFFD3E2F4), ink: Color(0xFF1F4B7A)),
+    Family.knee: (fill: Color(0xFFE3D6F0), ink: Color(0xFF54307A)),
+    Family.defense: (fill: Color(0xFFD4EBD9), ink: Color(0xFF1F5C33)),
+    Family.footwork: (fill: Color(0xFFD9E3E3), ink: Color(0xFF2E4F50)),
+  });
+
+  /// Deep discs with a pale icon: the same hues, reversed.
+  static const dark = CadenceColors({
+    Family.punch: (fill: Color(0xFF5C1F16), ink: Color(0xFFF6D5CF)),
+    Family.elbow: (fill: Color(0xFF5A3510), ink: Color(0xFFF5E0C3)),
+    Family.kick: (fill: Color(0xFF1B3A5C), ink: Color(0xFFD3E2F4)),
+    Family.knee: (fill: Color(0xFF3E2559), ink: Color(0xFFE3D6F0)),
+    Family.defense: (fill: Color(0xFF1C4428), ink: Color(0xFFD4EBD9)),
+    Family.footwork: (fill: Color(0xFF2A3B3C), ink: Color(0xFFD9E3E3)),
+  });
+
+  final Map<Family, FamilyColors> families;
+
+  FamilyColors family(Family family) => families[family]!;
+
+  static CadenceColors of(BuildContext context) =>
+      Theme.of(context).extension<CadenceColors>()!;
+
+  @override
+  CadenceColors copyWith({Map<Family, FamilyColors>? families}) =>
+      CadenceColors(families ?? this.families);
+
+  /// Blends two themes, for the animated switch between light and dark.
+  @override
+  CadenceColors lerp(CadenceColors? other, double t) {
+    if (other == null) return this;
+    return CadenceColors({
+      for (final family in Family.values)
+        family: (
+          fill: Color.lerp(
+            this.family(family).fill,
+            other.family(family).fill,
+            t,
+          )!,
+          ink: Color.lerp(
+            this.family(family).ink,
+            other.family(family).ink,
+            t,
+          )!,
+        ),
+    });
   }
 }

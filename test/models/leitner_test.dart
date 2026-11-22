@@ -59,6 +59,19 @@ void main() {
       expect(day, DateTime(2026, 10, 27));
       expect(day.hour, 0);
     });
+
+    test('daysBetween counts whole days, forward or back', () {
+      final today = DateTime(2026, 11, 23, 22, 30);
+      expect(daysBetween(today, DateTime(2026, 11, 23)), 0);
+      expect(daysBetween(today, DateTime(2026, 11, 24)), 1);
+      expect(daysBetween(today, DateTime(2026, 11, 21)), -2);
+      expect(daysBetween(today, DateTime(2027, 1, 1)), 39);
+    });
+
+    test('daysBetween is not cut short by the switch to winter time', () {
+      // 24 to 27 October 2026 lasts 73 hours in France, still 3 days.
+      expect(daysBetween(DateTime(2026, 10, 24), DateTime(2026, 10, 27)), 3);
+    });
   });
 
   group('T2 — due, overdue and review order (D6, D7)', () {
@@ -93,6 +106,16 @@ void main() {
         combo(id: 5, dueOn: DateTime(2026, 11, 10), box: 6),
       ]..sort(Leitner.compare);
       expect(combos.map((c) => c.id), [5, 4, 3, 2, 1]);
+    });
+
+    test('F1 — the summary counts due, overdue and all combos', () {
+      final combos = [
+        combo(id: 1, dueOn: DateTime(2026, 11, 18)),
+        combo(id: 2, dueOn: DateTime(2026, 11, 20)),
+        combo(id: 3, dueOn: DateTime(2026, 11, 21)),
+      ];
+      expect(Leitner.summarize(combos, today), (due: 2, overdue: 1, total: 3));
+      expect(Leitner.summarize([], today), (due: 0, overdue: 0, total: 0));
     });
   });
 }

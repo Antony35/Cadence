@@ -1,0 +1,930 @@
+{
+  "_meta": {
+    "description": "This file contains a serialized version of schema entities for drift.",
+    "version": "1.3.0"
+  },
+  "options": {
+    "store_date_time_values_as_text": false
+  },
+  "entities": [
+    {
+      "id": 0,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "techniques",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "slug",
+            "getter_name": "slug",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "name",
+            "getter_name": "name",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "spoken_name",
+            "getter_name": "spokenName",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "family",
+            "getter_name": "family",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "isOneOf",
+                        "import_uri": "package:cadence/data/drift/tables.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "family",
+                        "tag": "family"
+                      },
+                      ",",
+                      {
+                        "lexeme": "Family",
+                        "import_uri": "package:cadence/models/technique.dart"
+                      },
+                      ".values)"
+                    ]
+                  }
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<Family>(Family.values)",
+              "dart_type_name": "Family"
+            }
+          },
+          {
+            "name": "default_side",
+            "getter_name": "defaultSide",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "isOneOf",
+                        "import_uri": "package:cadence/data/drift/tables.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "defaultSide",
+                        "tag": "defaultSide"
+                      },
+                      ",",
+                      {
+                        "lexeme": "Side",
+                        "import_uri": "package:cadence/models/technique.dart"
+                      },
+                      ".values)"
+                    ]
+                  }
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<Side>(Side.values)",
+              "dart_type_name": "Side"
+            }
+          },
+          {
+            "name": "default_target",
+            "getter_name": "defaultTarget",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "isOneOf",
+                        "import_uri": "package:cadence/data/drift/tables.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "defaultTarget",
+                        "tag": "defaultTarget"
+                      },
+                      ",",
+                      {
+                        "lexeme": "Target",
+                        "import_uri": "package:cadence/models/technique.dart"
+                      },
+                      ".values)"
+                    ]
+                  }
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<Target>(Target.values)",
+              "dart_type_name": "Target"
+            }
+          },
+          {
+            "name": "position",
+            "getter_name": "position",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 1,
+      "references": [
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "technique_sides",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "technique_id",
+            "getter_name": "techniqueId",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES techniques (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES techniques (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "techniques",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "side",
+            "getter_name": "side",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "isOneOf",
+                        "import_uri": "package:cadence/data/drift/tables.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "side",
+                        "tag": "side"
+                      },
+                      ",",
+                      {
+                        "lexeme": "Side",
+                        "import_uri": "package:cadence/models/technique.dart"
+                      },
+                      ".values)"
+                    ]
+                  }
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<Side>(Side.values)",
+              "dart_type_name": "Side"
+            }
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "technique_id",
+          "side"
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "references": [
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "technique_targets",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "technique_id",
+            "getter_name": "techniqueId",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES techniques (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES techniques (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "techniques",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "target",
+            "getter_name": "target",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "isOneOf",
+                        "import_uri": "package:cadence/data/drift/tables.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "target",
+                        "tag": "target"
+                      },
+                      ",",
+                      {
+                        "lexeme": "Target",
+                        "import_uri": "package:cadence/models/technique.dart"
+                      },
+                      ".values)"
+                    ]
+                  }
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<Target>(Target.values)",
+              "dart_type_name": "Target"
+            }
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "technique_id",
+          "target"
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "combos",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "name",
+            "getter_name": "name",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "signature",
+            "getter_name": "signature",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "UNIQUE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "UNIQUE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "box",
+            "getter_name": "box",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "ComparableExpr",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "box",
+                        "tag": "box"
+                      },
+                      ").isBetweenValues(1,6)"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "due_on",
+            "getter_name": "dueOn",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const DayConverter()",
+              "dart_type_name": "DateTime"
+            }
+          },
+          {
+            "name": "created_at",
+            "getter_name": "createdAt",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const InstantConverter()",
+              "dart_type_name": "DateTime"
+            }
+          },
+          {
+            "name": "updated_at",
+            "getter_name": "updatedAt",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const InstantConverter()",
+              "dart_type_name": "DateTime"
+            }
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 4,
+      "references": [
+        3,
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "combo_steps",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "combo_id",
+            "getter_name": "comboId",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES combos (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES combos (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "combos",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "position",
+            "getter_name": "position",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "ComparableExpr",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "position",
+                        "tag": "position"
+                      },
+                      ").isBetweenValues(0,11)"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "technique_id",
+            "getter_name": "techniqueId",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES techniques (id) ON DELETE RESTRICT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES techniques (id) ON DELETE RESTRICT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "techniques",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "restrict"
+                }
+              }
+            ]
+          },
+          {
+            "name": "side",
+            "getter_name": "side",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "isOneOf",
+                        "import_uri": "package:cadence/data/drift/tables.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "side",
+                        "tag": "side"
+                      },
+                      ",",
+                      {
+                        "lexeme": "Side",
+                        "import_uri": "package:cadence/models/technique.dart"
+                      },
+                      ".values)"
+                    ]
+                  }
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<Side>(Side.values)",
+              "dart_type_name": "Side"
+            }
+          },
+          {
+            "name": "target",
+            "getter_name": "target",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "isOneOf",
+                        "import_uri": "package:cadence/data/drift/tables.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "target",
+                        "tag": "target"
+                      },
+                      ",",
+                      {
+                        "lexeme": "Target",
+                        "import_uri": "package:cadence/models/technique.dart"
+                      },
+                      ".values)"
+                    ]
+                  }
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<Target>(Target.values)",
+              "dart_type_name": "Target"
+            }
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "combo_id",
+          "position"
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "references": [
+        3
+      ],
+      "type": "table",
+      "data": {
+        "name": "reviews",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "PRIMARY KEY AUTOINCREMENT"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "auto-increment"
+            ]
+          },
+          {
+            "name": "combo_id",
+            "getter_name": "comboId",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES combos (id) ON DELETE CASCADE",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES combos (id) ON DELETE CASCADE"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "combos",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": "cascade"
+                }
+              }
+            ]
+          },
+          {
+            "name": "reviewed_at",
+            "getter_name": "reviewedAt",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const InstantConverter()",
+              "dart_type_name": "DateTime"
+            }
+          },
+          {
+            "name": "grade",
+            "getter_name": "grade",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "isOneOf",
+                        "import_uri": "package:cadence/data/drift/tables.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "grade",
+                        "tag": "grade"
+                      },
+                      ",",
+                      {
+                        "lexeme": "Grade",
+                        "import_uri": "package:cadence/models/review.dart"
+                      },
+                      ".values)"
+                    ]
+                  }
+                }
+              }
+            ],
+            "type_converter": {
+              "dart_expr": "const EnumNameConverter<Grade>(Grade.values)",
+              "dart_type_name": "Grade"
+            }
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 6,
+      "references": [
+        3
+      ],
+      "type": "index",
+      "data": {
+        "on": 3,
+        "name": "combos_due_on",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "due_on",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "references": [
+        4
+      ],
+      "type": "index",
+      "data": {
+        "on": 4,
+        "name": "combo_steps_technique_id",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "technique_id",
+            "order_by": null
+          }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "references": [
+        5
+      ],
+      "type": "index",
+      "data": {
+        "on": 5,
+        "name": "reviews_combo_id",
+        "sql": null,
+        "unique": false,
+        "columns": [
+          {
+            "column": "combo_id",
+            "order_by": null
+          }
+        ]
+      }
+    }
+  ],
+  "fixed_sql": [
+    {
+      "name": "techniques",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"techniques\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"slug\" TEXT NOT NULL UNIQUE, \"name\" TEXT NOT NULL, \"spoken_name\" TEXT NULL, \"family\" TEXT NOT NULL CHECK(\"family\" IN ('punch', 'elbow', 'kick', 'knee', 'defense', 'footwork')), \"default_side\" TEXT NULL CHECK(\"default_side\" IN ('lead', 'rear')), \"default_target\" TEXT NULL CHECK(\"default_target\" IN ('head', 'body', 'legs')), \"position\" INTEGER NOT NULL UNIQUE);"
+        }
+      ]
+    },
+    {
+      "name": "technique_sides",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"technique_sides\" (\"technique_id\" INTEGER NOT NULL REFERENCES techniques (id), \"side\" TEXT NOT NULL CHECK(\"side\" IN ('lead', 'rear')), PRIMARY KEY (\"technique_id\", \"side\"));"
+        }
+      ]
+    },
+    {
+      "name": "technique_targets",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"technique_targets\" (\"technique_id\" INTEGER NOT NULL REFERENCES techniques (id), \"target\" TEXT NOT NULL CHECK(\"target\" IN ('head', 'body', 'legs')), PRIMARY KEY (\"technique_id\", \"target\"));"
+        }
+      ]
+    },
+    {
+      "name": "combos",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"combos\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"name\" TEXT NULL, \"signature\" TEXT NOT NULL UNIQUE, \"box\" INTEGER NOT NULL CHECK(\"box\" BETWEEN 1 AND 6), \"due_on\" TEXT NOT NULL, \"created_at\" TEXT NOT NULL, \"updated_at\" TEXT NOT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "combo_steps",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"combo_steps\" (\"combo_id\" INTEGER NOT NULL REFERENCES combos (id) ON DELETE CASCADE, \"position\" INTEGER NOT NULL CHECK(\"position\" BETWEEN 0 AND 11), \"technique_id\" INTEGER NOT NULL REFERENCES techniques (id) ON DELETE RESTRICT, \"side\" TEXT NULL CHECK(\"side\" IN ('lead', 'rear')), \"target\" TEXT NULL CHECK(\"target\" IN ('head', 'body', 'legs')), PRIMARY KEY (\"combo_id\", \"position\"));"
+        }
+      ]
+    },
+    {
+      "name": "reviews",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"reviews\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"combo_id\" INTEGER NOT NULL REFERENCES combos (id) ON DELETE CASCADE, \"reviewed_at\" TEXT NOT NULL, \"grade\" TEXT NOT NULL CHECK(\"grade\" IN ('hard', 'good', 'easy')));"
+        }
+      ]
+    },
+    {
+      "name": "combos_due_on",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX combos_due_on ON combos (due_on)"
+        }
+      ]
+    },
+    {
+      "name": "combo_steps_technique_id",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX combo_steps_technique_id ON combo_steps (technique_id)"
+        }
+      ]
+    },
+    {
+      "name": "reviews_combo_id",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX reviews_combo_id ON reviews (combo_id)"
+        }
+      ]
+    }
+  ]
+}

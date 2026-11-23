@@ -107,6 +107,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('BASE'), findsOneWidget);
     expect(combos.combos, hasLength(1));
+
+    // Deleted from its sheet: back on the main screen, the list is read
+    // again only once the sheet is closed, so it no longer shows it.
+    await tester.tap(find.byTooltip('Supprimer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Supprimer'));
+    await tester.pumpAndSettle();
+    expect(find.text('AUCUN ENCHAÎNEMENT'), findsOneWidget);
   });
 
   testWidgets('F15 — leaving with unsaved input asks first', (tester) async {

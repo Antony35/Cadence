@@ -137,11 +137,21 @@ class _ComboFormPageState extends State<ComboFormPage> {
     if (leave == true && mounted) Navigator.pop(context);
   }
 
-  /// F12: « Ouvrir l'existant » replaces the form by the existing combo.
-  void _openExisting(int id) => Navigator.pushReplacement(
-    context,
-    MaterialPageRoute<void>(builder: (_) => ComboPage(id: id)),
-  );
+  /// F12: « Ouvrir l'existant » shows the existing combo, then closes the
+  /// form behind it.
+  ///
+  /// Not `pushReplacement`: it would give the form's result to the screen
+  /// below at once, and that screen would read its list too early, before a
+  /// change made on the sheet.
+  Future<void> _openExisting(int id) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<bool>(builder: (_) => ComboPage(id: id)),
+    );
+    // `pop`, unlike the back button, does not ask PopScope: the input is
+    // left on purpose.
+    if (mounted) Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -7,9 +7,12 @@ import 'package:flutter/material.dart';
 /// F1, F2: the « À réviser » card, the summary view of the app, drawn as a
 /// round board: a solid block, a gold figure.
 class ReviewCard extends StatelessWidget {
-  const ReviewCard({super.key, required this.summary});
+  const ReviewCard({super.key, required this.summary, required this.onStart});
 
   final ReviewSummary summary;
+
+  /// F19: opens the session, or « Réviser en avance » when nothing is due.
+  final VoidCallback onStart;
 
   @override
   Widget build(BuildContext context) {
@@ -84,17 +87,8 @@ class ReviewCard extends StatelessWidget {
                   style: text.bodyMedium?.copyWith(color: board.muted),
                 ),
                 const SizedBox(height: 24),
-                // Step 5 enables the button: it opens the session (F19).
                 FilledButton.icon(
-                  onPressed: null,
-                  // The action gold of the theme; until step 5, dimmed.
-                  style: FilledButton.styleFrom(
-                    disabledBackgroundColor: Theme.of(context)
-                        .colorScheme
-                        .primaryContainer
-                        .withValues(alpha: 0.4),
-                    disabledForegroundColor: board.ink.withValues(alpha: 0.7),
-                  ),
+                  onPressed: onStart,
                   icon: Icon(
                     due == 0
                         ? Icons.fast_forward_rounded

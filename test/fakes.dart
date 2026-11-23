@@ -4,10 +4,13 @@ import 'package:cadence/data/exceptions.dart';
 import 'package:cadence/data/repositories.dart';
 import 'package:cadence/models/catalog.dart';
 import 'package:cadence/models/combo.dart';
+import 'package:cadence/models/drill.dart';
 import 'package:cadence/models/leitner.dart';
 import 'package:cadence/models/review.dart';
 import 'package:cadence/models/technique.dart';
 import 'package:cadence/state/clock.dart';
+import 'package:cadence/state/screen_awake.dart';
+import 'package:cadence/state/speaker.dart';
 
 // Fakes of the services, in memory, for the controller and widget tests:
 // no database, and a test decides what a read returns or when it fails.
@@ -147,13 +150,69 @@ class FakeTechniqueRepository implements TechniqueRepository {
 }
 
 class FakeReviewRepository implements ReviewRepository {
+  /// [combos], when given, gets the new box and due day of each review, as
+  /// the database would.
+  FakeReviewRepository([this.combos]);
+
+  final FakeComboRepository? combos;
+
   /// Reviews per combo id.
   Map<int, int> counts = {};
 
+  /// The grades given, in order.
+  final recorded = <(int comboId, Grade grade)>[];
+
+  /// When set, every record throws it.
+  Object? error;
+
   @override
-  Future<Combo> record(Combo combo, Grade grade, {required DateTime now}) =>
-      throw UnimplementedError();
+  Future<Combo> record(
+    Combo combo,
+    Grade grade, {
+    required DateTime now,
+  }) async {
+    if (error case final error?) throw error;
+    recorded.add((combo.id, grade));
+    final box = Leitner.nextBox(combo.box, grade);
+    final updated = combo.copyWith(box: box, dueOn: Leitner.dueOn(box, now));
+    if (combos case final repository?) {
+      repository.combos = [
+        for (final c in repository.combos) c.id == combo.id ? updated : c,
+      ];
+    }
+    return updated;
+  }
 
   @override
   Future<int> countFor(int comboId) async => counts[comboId] ?? 0;
+}
+
+/// A voice that says nothing and answers at once: the test reads [said].
+class FakeSpeaker implements Speaker {
+  FakeSpeaker({this.available = true});
+
+  /// False: no French voice on this phone (S4).
+  final bool available;
+
+  final said = <(String text, Pace pace)>[];
+  int stops = 0;
+
+  @override
+  Future<bool> init() async => available;
+
+  @override
+  Future<void> speak(String text, Pace pace) async => said.add((text, pace));
+
+  @override
+  Future<void> stop() async => stops++;
+}
+
+class FakeScreenAwake implements ScreenAwake {
+  bool on = false;
+
+  @override
+  Future<void> keepOn() async => on = true;
+
+  @override
+  Future<void> release() async => on = false;
 }

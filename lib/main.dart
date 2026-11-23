@@ -3,6 +3,8 @@ import 'package:cadence/data/drift/database.dart';
 import 'package:cadence/data/drift/drift_combo_repository.dart';
 import 'package:cadence/data/drift/drift_review_repository.dart';
 import 'package:cadence/data/drift/drift_technique_repository.dart';
+import 'package:cadence/platform/tts_speaker.dart';
+import 'package:cadence/platform/wakelock_screen_awake.dart';
 import 'package:cadence/state/clock.dart';
 import 'package:cadence/ui/app.dart';
 import 'package:cadence/ui/widgets/technique_image.dart';
@@ -10,7 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Builds the services once, then starts the app. The only file that knows
-/// the drift implementations: everything else sees the contracts.
+/// the drift and Android implementations: everything else sees the
+/// contracts.
 Future<void> main() async {
   // Lets the code below use the engine (the files of the app) before runApp.
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +40,8 @@ Future<void> main() async {
       techniques: techniques,
       combos: combos,
       reviews: reviews,
+      speaker: TtsSpeaker(),
+      screenAwake: const WakelockScreenAwake(),
       images: await TechniqueImages.load(rootBundle),
       clock: clock,
     ),

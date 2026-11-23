@@ -5,6 +5,7 @@ import 'package:cadence/state/home_controller.dart';
 import 'package:cadence/state/load_state.dart';
 import 'package:cadence/ui/combo_form_page.dart';
 import 'package:cadence/ui/combo_page.dart';
+import 'package:cadence/ui/session_page.dart';
 import 'package:cadence/ui/techniques_page.dart';
 import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/brand.dart';
@@ -81,6 +82,18 @@ class _HomePageState extends State<HomePage> {
         const SnackBar(content: Text('Enregistré · à réviser demain')),
       );
     }
+  }
+
+  /// F19: « Commencer », or « Réviser en avance » when nothing is due. Back
+  /// from the session, the list is read again: the due days have moved.
+  Future<void> _startSession() async {
+    final ahead = _controller.summary.due == 0;
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (_) => SessionPage(ahead: ahead)),
+    );
+    if (!mounted) return;
+    await _controller.load();
   }
 
   /// F5: touching a row opens the sheet of the combo.
@@ -195,7 +208,10 @@ class _HomePageState extends State<HomePage> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppTheme.gutter),
-          child: ReviewCard(summary: _controller.summary),
+          child: ReviewCard(
+            summary: _controller.summary,
+            onStart: _startSession,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(

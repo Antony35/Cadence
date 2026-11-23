@@ -1,5 +1,7 @@
 import 'package:cadence/data/repositories.dart';
 import 'package:cadence/state/clock.dart';
+import 'package:cadence/state/screen_awake.dart';
+import 'package:cadence/state/speaker.dart';
 import 'package:cadence/ui/home_page.dart';
 import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/technique_image.dart';
@@ -15,6 +17,8 @@ class CadenceApp extends StatelessWidget {
     required this.techniques,
     required this.combos,
     required this.reviews,
+    required this.speaker,
+    required this.screenAwake,
     this.images = const TechniqueImages.none(),
     this.clock = const Clock(),
   });
@@ -22,6 +26,8 @@ class CadenceApp extends StatelessWidget {
   final TechniqueRepository techniques;
   final ComboRepository combos;
   final ReviewRepository reviews;
+  final Speaker speaker;
+  final ScreenAwake screenAwake;
   final TechniqueImages images;
   final Clock clock;
 
@@ -38,6 +44,8 @@ class CadenceApp extends StatelessWidget {
         Provider<ReviewRepository>.value(value: reviews),
         Provider<TechniqueImages>.value(value: images),
         Provider<Clock>.value(value: clock),
+        Provider<Speaker>.value(value: speaker),
+        Provider<ScreenAwake>.value(value: screenAwake),
       ],
       child: MaterialApp(
         title: 'Cadence',

@@ -13,6 +13,8 @@ Future<void> pumpApp(
   FakeComboRepository? combos,
   FakeTechniqueRepository? techniques,
   FakeReviewRepository? reviews,
+  FakeSpeaker? speaker,
+  FakeScreenAwake? screenAwake,
 }) async {
   if (!keepView) {
     tester.view.physicalSize = const Size(412, 915);
@@ -24,6 +26,8 @@ Future<void> pumpApp(
       techniques: techniques ?? FakeTechniqueRepository(),
       combos: combos ?? FakeComboRepository(),
       reviews: reviews ?? FakeReviewRepository(),
+      speaker: speaker ?? FakeSpeaker(),
+      screenAwake: screenAwake ?? FakeScreenAwake(),
       clock: FixedClock(),
     ),
   );

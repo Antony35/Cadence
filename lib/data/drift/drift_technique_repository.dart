@@ -48,7 +48,6 @@ class DriftTechniqueRepository implements TechniqueRepository {
             slug: row.slug,
             name: row.name,
             family: row.family,
-            spokenName: row.spokenName,
             sides: {
               for (final s in sides)
                 if (s.techniqueId == row.id) s.side,

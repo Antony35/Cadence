@@ -1,3 +1,4 @@
+import 'package:cadence/state/speaker.dart';
 import 'package:cadence/ui/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,7 +14,7 @@ Future<void> pumpApp(
   FakeComboRepository? combos,
   FakeTechniqueRepository? techniques,
   FakeReviewRepository? reviews,
-  FakeSpeaker? speaker,
+  Speaker? speaker,
   FakeScreenAwake? screenAwake,
 }) async {
   if (!keepView) {

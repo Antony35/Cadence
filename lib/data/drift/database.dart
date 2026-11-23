@@ -53,7 +53,6 @@ class AppDatabase extends _$AppDatabase {
         TechniquesCompanion.insert(
           slug: technique.slug,
           name: technique.name,
-          spokenName: Value(technique.spokenName),
           family: technique.family,
           defaultSide: Value(technique.defaultSide),
           defaultTarget: Value(technique.defaultTarget),

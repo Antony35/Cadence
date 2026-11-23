@@ -1,5 +1,9 @@
+import 'dart:async';
+
+import 'package:cadence/models/combo.dart';
 import 'package:cadence/models/drill.dart';
 import 'package:cadence/models/review.dart';
+import 'package:cadence/state/speaker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -59,11 +63,17 @@ void main() {
 
     await startCombo(tester);
     expect(find.text('LENT'), findsOneWidget);
-    expect(speaker.said.first, ('Djab', Pace.slow));
+    expect(speaker.said.first, ('Jab à la tête', Pace.slow));
 
     await tester.pump(allRepetitions);
     expect(speaker.said, hasLength(24));
-    expect(speaker.said.take(2).map((s) => s.$1), ['Djab', 'Direct']);
+    expect(speaker.said.take(2).map((s) => s.$1), [
+      'Jab à la tête',
+      'Direct à la tête',
+    ]);
+    // D10: less and less to say, like a coach.
+    expect(speaker.said[8], ('Jab tête', Pace.medium));
+    expect(speaker.said.last, ('Direct', Pace.fast));
     for (final pace in Pace.values) {
       expect(speaker.said.where((s) => s.$2 == pace), hasLength(8));
     }
@@ -107,8 +117,34 @@ void main() {
 
     await tester.tap(find.text('Reprendre'));
     await tester.pump();
-    expect(speaker.said.map((s) => s.$1), ['Djab', 'Djab']);
+    expect(speaker.said.map((s) => s.$1), ['Jab à la tête', 'Jab à la tête']);
     expect(find.text('LENT'), findsOneWidget);
+  });
+
+  testWidgets('F21 — a pause that cuts the voice does not turn it off', (
+    tester,
+  ) async {
+    // Like the real player: the call waits, then fails when it is cut.
+    final speaker = _CutSpeaker();
+    await pumpApp(
+      tester,
+      combos: FakeComboRepository([combo(dueOn: today)]),
+      speaker: speaker,
+    );
+    await startSession(tester);
+
+    await tester.tap(find.text('Pause'));
+    await tester.pump();
+    expect(find.text('EN PAUSE'), findsOneWidget);
+    expect(
+      find.text('Voix indisponible : les répétitions défilent sans le son.'),
+      findsNothing,
+    );
+
+    await tester.tap(find.text('Reprendre'));
+    await tester.pump();
+    // The same voice says the strike again.
+    expect(speaker.calls, 2);
   });
 
   testWidgets('F21 — hidden in the background, the session pauses', (
@@ -240,4 +276,29 @@ void main() {
     expect(speaker.stops, greaterThan(0));
     expect(find.text('CADENCE'), findsOneWidget);
   });
+}
+
+/// A voice that speaks until it is cut, then fails, as `just_audio` does
+/// when `stop()` interrupts a loading call.
+class _CutSpeaker implements Speaker {
+  int calls = 0;
+  Completer<void>? _speaking;
+
+  @override
+  Future<bool> init() async => true;
+
+  @override
+  Future<void> speak(ComboStep step, Pace pace) {
+    calls++;
+    return (_speaking = Completer<void>()).future;
+  }
+
+  @override
+  Future<void> stop() async {
+    final speaking = _speaking;
+    _speaking = null;
+    if (speaking != null && !speaking.isCompleted) {
+      speaking.completeError(Exception('Loading interrupted'));
+    }
+  }
 }

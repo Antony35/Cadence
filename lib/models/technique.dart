@@ -31,14 +31,17 @@ enum Side {
 
 /// Where the technique lands.
 enum Target {
-  head('à la tête'),
-  body('au corps'),
-  legs('à la cuisse');
+  head('à la tête', 'tête'),
+  body('au corps', 'corps'),
+  legs('à la cuisse', 'cuisse');
 
-  const Target(this.label);
+  const Target(this.label, this.shortLabel);
 
   /// Written to follow a technique name: « Crochet au corps ».
   final String label;
+
+  /// The word a coach says when it goes faster: « Crochet corps ».
+  final String shortLabel;
 }
 
 /// A technique of the read-only catalog (`catalog.dart`).
@@ -51,7 +54,6 @@ class Technique with _$Technique {
     required this.slug,
     required this.name,
     required this.family,
-    this.spokenName,
     this.sides = const {},
     this.targets = const {},
     this.defaultSide,
@@ -66,9 +68,6 @@ class Technique with _$Technique {
 
   final Family family;
 
-  /// Phonetic spelling for the voice when it mispronounces [name].
-  final String? spokenName;
-
   /// Accepted sides; empty for a technique without side (a defense).
   final Set<Side> sides;
 
@@ -80,9 +79,6 @@ class Technique with _$Technique {
 
   /// Preselected target, one of [targets].
   final Target? defaultTarget;
-
-  /// What the voice says: [spokenName] if any, else [name].
-  String get spoken => spokenName ?? name;
 
   /// True when there is nothing to choose before adding the technique (F9).
   bool get hasNoChoice => sides.length < 2 && targets.length < 2;

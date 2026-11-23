@@ -14,7 +14,6 @@ const List<Technique> catalog = [
   Technique(
     slug: 'jab',
     name: 'Jab',
-    spokenName: 'Djab',
     family: Family.punch,
     sides: {Side.lead},
     targets: _headBody,
@@ -51,7 +50,6 @@ const List<Technique> catalog = [
   Technique(
     slug: 'overhand',
     name: 'Overhand',
-    spokenName: 'Oveur-hande',
     family: Family.punch,
     sides: _both,
     targets: _head,
@@ -79,7 +77,6 @@ const List<Technique> catalog = [
   Technique(
     slug: 'superman_punch',
     name: 'Superman punch',
-    spokenName: 'Superman peunche',
     family: Family.punch,
     sides: _both,
     targets: _head,

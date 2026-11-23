@@ -30,23 +30,17 @@ class ComboStep with _$ComboStep {
   final Side? side;
   final Target? target;
 
-  /// « Crochet arrière au corps ». The side only when the technique
-  /// accepts two, the target only when it is not the default one.
-  String get label => _describe(technique.name);
+  /// The side, said only when the technique accepts two.
+  Side? get saidSide => technique.sides.length > 1 ? side : null;
 
-  /// [label] with the phonetic name, for the voice.
-  String get spokenLabel => _describe(technique.spoken);
+  /// The target, said as soon as there was a choice, even the default one,
+  /// so that a beginner always knows where to strike (« Crochet avant à la
+  /// tête »).
+  Target? get saidTarget => technique.targets.length > 1 ? target : null;
 
-  String _describe(String techniqueName) {
-    // Local copies: Dart only promotes a local variable to non-null.
-    final side = this.side;
-    final target = this.target;
-    return [
-      techniqueName,
-      if (side != null && technique.sides.length > 1) side.label,
-      if (target != null && target != technique.defaultTarget) target.label,
-    ].join(' ');
-  }
+  /// « Crochet arrière au corps »: the name, [saidSide] and [saidTarget].
+  String get label =>
+      [technique.name, ?saidSide?.label, ?saidTarget?.label].join(' ');
 
   /// A value is accepted if it belongs to [accepted], or if it is empty and
   /// there is nothing to accept.

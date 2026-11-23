@@ -1,4 +1,5 @@
 import 'package:cadence/models/drill.dart';
+import 'package:cadence/models/technique.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fixtures.dart';
@@ -17,10 +18,33 @@ void main() {
     });
 
     test('the faster the pace, the quicker the voice and the gap', () {
-      expect(Pace.slow.speechRate, lessThan(Pace.medium.speechRate));
-      expect(Pace.medium.speechRate, lessThan(Pace.fast.speechRate));
+      expect(Pace.slow.speed, lessThan(Pace.medium.speed));
+      expect(Pace.medium.speed, lessThan(Pace.fast.speed));
       expect(Pace.slow.stepGap, greaterThan(Pace.medium.stepGap));
       expect(Pace.medium.stepGap, greaterThan(Pace.fast.stepGap));
+    });
+  });
+
+  group('T7 — calls (D10)', () {
+    final hook = step('hook', side: Side.rear, target: Target.body);
+
+    test('all of it when slow, less and less when faster', () {
+      expect(Drill.call(hook, Pace.slow), 'Crochet arrière au corps');
+      expect(Drill.call(hook, Pace.medium), 'Crochet corps');
+      expect(Drill.call(hook, Pace.fast), 'Crochet');
+    });
+
+    test('the target is said as soon as it was chosen, even the default '
+        'one', () {
+      final hookHead = step('hook', target: Target.head);
+      expect(Drill.call(hookHead, Pace.slow), 'Crochet avant à la tête');
+      expect(Drill.call(hookHead, Pace.medium), 'Crochet tête');
+    });
+
+    test('nothing to choose, the same call at every pace', () {
+      for (final pace in Pace.values) {
+        expect(Drill.call(step('pivot'), pace), 'Pivot');
+      }
     });
   });
 
@@ -30,14 +54,14 @@ void main() {
 
     test('each step in order, 12 times', () {
       expect(cues, hasLength(36));
-      expect(cues.take(3).map((c) => c.text), [
-        'Djab',
-        'Direct',
-        'Crochet avant',
+      expect(cues.take(3).map((c) => c.step.label), [
+        'Jab à la tête',
+        'Direct à la tête',
+        'Crochet avant à la tête',
       ]);
       expect(cues.map((c) => c.repetition).toSet(), hasLength(12));
       expect(cues.last.repetition, 12);
-      expect(cues.last.step, 2);
+      expect(cues.last.index, 2);
     });
 
     test('the pace follows the repetition', () {
@@ -53,9 +77,9 @@ void main() {
       expect(cues.last.pauseAfter, Duration.zero);
     });
 
-    test('the voice says the spoken name and the side', () {
+    test('each cue carries its step, for the clips of the voice', () {
       final hook = Drill.cues([step('hook'), step('jab')]).first;
-      expect(hook.text, 'Crochet avant');
+      expect(hook.step, step('hook'));
     });
   });
 

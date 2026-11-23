@@ -43,7 +43,7 @@ void main() {
 
     expect(find.text('02 À RÉVISER'), findsOneWidget);
     expect(find.text('dont 1 en retard · 3 enchaînements'), findsOneWidget);
-    expect(find.text('Teep avant · Low kick arrière'), findsOneWidget);
+    expect(find.text('Teep avant au corps · Low kick arrière'), findsOneWidget);
     expect(find.text('EN RETARD'), findsOneWidget);
     expect(find.text("AUJOURD'HUI"), findsOneWidget);
     expect(find.text('DANS 7 J'), findsOneWidget);
@@ -103,7 +103,7 @@ void main() {
     await tester.tap(find.text('POINGS'));
     await tester.pump();
     expect(find.text('Base'), findsOneWidget);
-    expect(find.text('Teep avant · Low kick arrière'), findsNothing);
+    expect(find.text('Teep avant au corps · Low kick arrière'), findsNothing);
   });
 
   testWidgets('back to the foreground, the list is read again', (tester) async {

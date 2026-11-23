@@ -223,7 +223,7 @@ class SessionController extends ChangeNotifier {
     while (_cue < _cues.length) {
       final cue = _cues[_cue];
       _set(Drilling(cue));
-      await _say(cue);
+      await _say(cue, run);
       if (run != _runs) return;
       await _wait(cue.pauseAfter);
       if (run != _runs) return;
@@ -233,14 +233,17 @@ class SessionController extends ChangeNotifier {
   }
 
   /// S4: if the voice fails during the session, the silent one takes over.
-  Future<void> _say(Cue cue) async {
+  /// A call cut by a pause, a skip or a stop may fail too (the player was
+  /// interrupted): that is not a failure of the voice, which is kept.
+  Future<void> _say(Cue cue, int run) async {
     try {
-      await _speaker.speak(cue.text, cue.pace);
+      await _speaker.speak(cue.step, cue.pace);
     } catch (error) {
+      if (run != _runs) return;
       debugPrint('SessionController._say: $error');
       _goSilent();
       notifyListeners();
-      await _speaker.speak(cue.text, cue.pace);
+      await _speaker.speak(cue.step, cue.pace);
     }
   }
 

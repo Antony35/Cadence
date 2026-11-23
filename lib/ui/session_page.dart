@@ -197,7 +197,7 @@ class _DrillView extends StatelessWidget {
           child: _RoundBoard(cue: cue, paused: paused),
         ),
         Expanded(
-          child: _StepList(steps: steps, current: cue.step),
+          child: _StepList(steps: steps, current: cue.index),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(

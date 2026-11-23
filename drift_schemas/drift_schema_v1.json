@@ -58,16 +58,6 @@
             "dsl_features": []
           },
           {
-            "name": "spoken_name",
-            "getter_name": "spokenName",
-            "moor_type": "string",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
             "name": "family",
             "getter_name": "family",
             "moor_type": "string",
@@ -850,7 +840,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"techniques\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"slug\" TEXT NOT NULL UNIQUE, \"name\" TEXT NOT NULL, \"spoken_name\" TEXT NULL, \"family\" TEXT NOT NULL CHECK(\"family\" IN ('punch', 'elbow', 'kick', 'knee', 'defense', 'footwork')), \"default_side\" TEXT NULL CHECK(\"default_side\" IN ('lead', 'rear')), \"default_target\" TEXT NULL CHECK(\"default_target\" IN ('head', 'body', 'legs')), \"position\" INTEGER NOT NULL UNIQUE);"
+          "sql": "CREATE TABLE IF NOT EXISTS \"techniques\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"slug\" TEXT NOT NULL UNIQUE, \"name\" TEXT NOT NULL, \"family\" TEXT NOT NULL CHECK(\"family\" IN ('punch', 'elbow', 'kick', 'knee', 'defense', 'footwork')), \"default_side\" TEXT NULL CHECK(\"default_side\" IN ('lead', 'rear')), \"default_target\" TEXT NULL CHECK(\"default_target\" IN ('head', 'body', 'legs')), \"position\" INTEGER NOT NULL UNIQUE);"
         }
       ]
     },

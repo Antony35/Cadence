@@ -49,6 +49,19 @@ Le dossier `drift_schemas/` garde une photo du schéma de chaque version : la
 base d'un téléphone pourra être migrée vers la version suivante sans perdre de
 données.
 
+## La voix
+
+La voix n'est pas la synthèse vocale du téléphone : chaque annonce a été
+enregistrée une fois, d'un trait, avec la synthèse vocale de Gemini, dans
+`assets/voice/`. Comme un entraîneur, elle en dit moins quand ça
+s'accélère : « Crochet arrière au corps » en lent, « Crochet corps » en
+moyen, « Crochet » en rapide (89 annonces longues, 51 courtes). La cible est
+toujours annoncée et affichée quand elle a été choisie (« Crochet avant à la
+tête »). La voix est
+la même sur tous les téléphones et fonctionne hors ligne. Un test vérifie
+que chaque annonce, à chaque palier, a son enregistrement. Elle est jouée avec `just_audio`, derrière le contrat
+`Speaker` (`lib/platform/clip_speaker.dart`).
+
 ## Dépendances
 
 | Paquet | Pourquoi |
@@ -57,7 +70,7 @@ données.
 | `drift`, `drift_flutter`, `drift_dev` | ORM sur SQLite. Les tables sont décrites en Dart, drift écrit le SQL. Choisi pour les migrations versionnées (l'application va évoluer) et pour les requêtes vérifiées à la compilation. drift n'est utilisé que dans `lib/data/drift/`. |
 | `provider` | Rend les services (repositories, horloge) accessibles à tous les écrans, comme le conteneur de services de Symfony : un écran demande ce qu'il utilise, sans qu'on le lui transmette d'écran en écran. Choisi en vue de la V2 (profil et statistiques partagés entre écrans). |
 | `intl` | Les dates en français sur la fiche d'un enchaînement (« 24 novembre 2026 »). Déjà présent par `flutter_localizations`. |
-| `flutter_tts` | La voix de la séance : la synthèse vocale d'Android, en français. Utilisé seulement dans `lib/platform/`, derrière le contrat `Speaker` : les tests utilisent un faux. Demande la déclaration `TTS_SERVICE` dans le manifeste (visibilité, pas une permission). |
+| `just_audio` | Joue les annonces enregistrées de la voix, et les accélère un peu sans changer la hauteur de la voix (paliers). Utilisé seulement dans `lib/platform/`, derrière le contrat `Speaker` : les tests utilisent un faux. |
 | `wakelock_plus` | Garde l'écran allumé pendant la séance, quand le téléphone est posé. Derrière le contrat `ScreenAwake`, pour la même raison. |
 | `flutter_localizations` (SDK) | Les textes de Material en français (infobulles, boutons système). |
 
@@ -105,7 +118,7 @@ lib/
   data/     contrats des repositories ; drift/ : leur implémentation SQLite
   state/    un contrôleur par écran (ChangeNotifier), les quatre états,
             les contrats de la voix et de l'écran allumé
-  platform/ leur implémentation Android (flutter_tts, wakelock_plus)
+  platform/ leur implémentation Android (just_audio, wakelock_plus)
   ui/       écrans et composants ; theme/ : toutes les couleurs
 ```
 

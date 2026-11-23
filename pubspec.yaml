@@ -16,9 +16,9 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_tts: ^4.2.5
   freezed_annotation: ^3.1.0
   intl: ^0.20.3
+  just_audio: ^0.10.6
   provider: ^6.1.5+1
   wakelock_plus: ^1.8.2
 
@@ -38,6 +38,9 @@ flutter:
     - assets/techniques/
     # The logo: the poster and its gloves, square.
     - assets/brand/
+    # The voice: one recorded call per sentence, long (slow) and short.
+    - assets/voice/full/
+    - assets/voice/short/
   # Barlow (text) and Barlow Condensed (titles, figures, labels), bundled
   # because the app works offline. SIL Open Font License: assets/fonts/OFL.txt.
   fonts:

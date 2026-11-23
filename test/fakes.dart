@@ -194,14 +194,16 @@ class FakeSpeaker implements Speaker {
   /// False: no French voice on this phone (S4).
   final bool available;
 
-  final said = <(String text, Pace pace)>[];
+  /// Each call said ([Drill.call]), and its pace.
+  final said = <(String call, Pace pace)>[];
   int stops = 0;
 
   @override
   Future<bool> init() async => available;
 
   @override
-  Future<void> speak(String text, Pace pace) async => said.add((text, pace));
+  Future<void> speak(ComboStep step, Pace pace) async =>
+      said.add((Drill.call(step, pace), pace));
 
   @override
   Future<void> stop() async => stops++;

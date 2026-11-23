@@ -36,7 +36,7 @@ void main() {
     expect(find.text('BASE'), findsOneWidget);
     expect(find.text('Dans 2 j · 25 novembre 2026'), findsOneWidget);
     expect(find.text('01'), findsOneWidget);
-    expect(find.text('Crochet avant'), findsOneWidget);
+    expect(find.text('Crochet avant à la tête'), findsOneWidget);
     expect(find.text('2 révisions'), findsOneWidget);
     expect(find.text('20 novembre 2026'), findsNWidgets(2));
   });

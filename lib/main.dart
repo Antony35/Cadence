@@ -3,7 +3,7 @@ import 'package:cadence/data/drift/database.dart';
 import 'package:cadence/data/drift/drift_combo_repository.dart';
 import 'package:cadence/data/drift/drift_review_repository.dart';
 import 'package:cadence/data/drift/drift_technique_repository.dart';
-import 'package:cadence/platform/tts_speaker.dart';
+import 'package:cadence/platform/clip_speaker.dart';
 import 'package:cadence/platform/wakelock_screen_awake.dart';
 import 'package:cadence/state/clock.dart';
 import 'package:cadence/ui/app.dart';
@@ -40,7 +40,7 @@ Future<void> main() async {
       techniques: techniques,
       combos: combos,
       reviews: reviews,
-      speaker: TtsSpeaker(),
+      speaker: ClipSpeaker(),
       screenAwake: const WakelockScreenAwake(),
       images: await TechniqueImages.load(rootBundle),
       clock: clock,

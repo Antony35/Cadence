@@ -45,7 +45,10 @@ void main() {
     await tester.tap(find.text('Enregistrer'));
     await tester.pumpAndSettle();
     expect(find.text('NOUVEL ENCHAÎNEMENT'), findsNothing);
-    expect(find.text('Jab · Crochet arrière au corps'), findsOneWidget);
+    expect(
+      find.text('Jab à la tête · Crochet arrière au corps'),
+      findsOneWidget,
+    );
     expect(find.text('Enregistré · à réviser demain'), findsOneWidget);
     expect(combos.combos, hasLength(1));
   });
@@ -74,16 +77,18 @@ void main() {
     await addFromGrid(tester, 'DIRECT');
 
     // The second step (« Direct »), moved before the first.
-    await tester.tap(find.text('Direct'));
+    await tester.tap(find.text('Direct à la tête'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Avant'));
     await tester.pumpAndSettle();
     final labels = tester
-        .widgetList<Text>(find.textContaining(RegExp(r'^(Jab|Direct)$')))
+        .widgetList<Text>(
+          find.textContaining(RegExp(r'^(Jab|Direct) à la tête$')),
+        )
         .map((t) => t.data);
-    expect(labels, ['Direct', 'Jab']);
+    expect(labels, ['Direct à la tête', 'Jab à la tête']);
 
-    await tester.tap(find.text('Jab'));
+    await tester.tap(find.text('Jab à la tête'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Retirer'));
     await tester.pumpAndSettle();

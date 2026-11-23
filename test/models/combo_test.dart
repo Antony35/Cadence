@@ -34,22 +34,32 @@ void main() {
 
   group('T3 — step labels and display name (D3, D4)', () {
     test('the side is said only when the technique accepts two', () {
-      expect(step('jab').label, 'Jab');
-      expect(step('cross').label, 'Direct');
-      expect(step('hook', side: Side.rear).label, 'Crochet arrière');
+      expect(step('cross').label, 'Direct à la tête');
+      expect(step('hook', side: Side.rear).label, 'Crochet arrière à la tête');
       expect(step('low_kick').label, 'Low kick arrière');
     });
 
-    test('the target is said only when it is not the default one', () {
+    test('the target is said when there was a choice, even the default '
+        'one', () {
+      expect(step('jab').label, 'Jab à la tête');
       expect(step('hook', target: Target.body).label, 'Crochet avant au corps');
-      expect(step('jab', target: Target.body).label, 'Jab au corps');
       expect(step('teep', target: Target.legs).label, 'Teep avant à la cuisse');
-      expect(step('front_kick', side: Side.rear).label, 'Front kick arrière');
+      expect(
+        step('front_kick', side: Side.rear).label,
+        'Front kick arrière au corps',
+      );
+      // A single target (the low kick, to the thigh) is not said.
+      expect(step('low_kick').saidTarget, isNull);
     });
 
-    test('the voice uses the phonetic name', () {
-      expect(step('jab', target: Target.body).spokenLabel, 'Djab au corps');
-      expect(step('hook').spokenLabel, 'Crochet avant');
+    test('saidSide and saidTarget are what the label adds to the name', () {
+      final hook = step('hook', side: Side.rear, target: Target.body);
+      expect((hook.saidSide, hook.saidTarget), (Side.rear, Target.body));
+      expect(
+        (step('jab').saidSide, step('jab').saidTarget),
+        (null, Target.head),
+      );
+      expect((step('pivot').saidSide, step('pivot').saidTarget), (null, null));
     });
 
     test('the display name is the name when filled in', () {
@@ -61,11 +71,11 @@ void main() {
       final steps = [step('jab'), step('cross'), step('low_kick')];
       expect(
         combo(steps: steps, dueOn: DateTime(2026, 11, 2)).displayName,
-        'Jab · Direct · Low kick arrière',
+        'Jab à la tête · Direct à la tête · Low kick arrière',
       );
       expect(
         ComboRules.displayName('   ', steps),
-        'Jab · Direct · Low kick arrière',
+        'Jab à la tête · Direct à la tête · Low kick arrière',
       );
     });
   });

@@ -1,31 +1,33 @@
 import 'package:cadence/models/combo.dart';
 
 /// The three speeds of the voice (D10). Fixed in the code, tuned by ear on
-/// the Pixel.
+/// the Pixel. The pace mostly comes from shorter calls ([Drill.call]): the
+/// voice itself is only a little faster.
 enum Pace {
-  slow('Lent', speechRate: 0.5, stepGap: Duration(milliseconds: 500)),
-  medium('Moyen', speechRate: 0.65, stepGap: Duration(milliseconds: 250)),
-  fast('Rapide', speechRate: 0.8, stepGap: Duration(milliseconds: 100));
+  slow('Lent', speed: 1, stepGap: Duration(milliseconds: 500)),
+  medium('Moyen', speed: 1.1, stepGap: Duration(milliseconds: 250)),
+  fast('Rapide', speed: 1.2, stepGap: Duration(milliseconds: 100));
 
-  const Pace(this.label, {required this.speechRate, required this.stepGap});
+  const Pace(this.label, {required this.speed, required this.stepGap});
 
   final String label;
 
-  /// The speed of Android's voice, from 0 to 1: 0.5 is the normal speed,
-  /// 0.8 is 1.6 times faster.
-  final double speechRate;
+  /// The speed of the recorded voice: 1 as recorded, 1.2 is 20 % faster
+  /// (at the same pitch).
+  final double speed;
 
   /// The silence after each strike: the faster, the shorter.
   final Duration stepGap;
 }
 
-/// One thing the voice says: [step] (from 0) of [repetition] (from 1), then
-/// a silence of [pauseAfter]. A record, like `ReviewSummary`.
+/// One thing the voice says: [step], at [index] (from 0) in the combo, in
+/// [repetition] (from 1), then a silence of [pauseAfter]. A record, like
+/// `ReviewSummary`.
 typedef Cue = ({
   int repetition,
-  int step,
+  int index,
+  ComboStep step,
   Pace pace,
-  String text,
   Duration pauseAfter,
 });
 
@@ -47,6 +49,19 @@ abstract final class Drill {
   static Pace paceOf(int repetition) =>
       Pace.values[(repetition - 1) ~/ perPace];
 
+  /// D10: what the voice says for [step] at [pace], like a coach: all of it
+  /// when slow (« Crochet arrière au corps »), the target in one word when
+  /// medium (« Crochet corps »), the technique alone when fast
+  /// (« Crochet »). The side and the target are then remembered, not heard.
+  static String call(ComboStep step, Pace pace) => switch (pace) {
+    Pace.slow => step.label,
+    Pace.medium => [
+      step.technique.name,
+      ?step.saidTarget?.shortLabel,
+    ].join(' '),
+    Pace.fast => step.technique.name,
+  };
+
   /// F20: everything the voice says for [steps], in order: each step one
   /// after the other, 12 times.
   static List<Cue> cues(List<ComboStep> steps) => [
@@ -54,9 +69,9 @@ abstract final class Drill {
       for (final (index, step) in steps.indexed)
         (
           repetition: repetition,
-          step: index,
+          index: index,
+          step: step,
           pace: paceOf(repetition),
-          text: step.spokenLabel,
           pauseAfter: _pauseAfter(repetition, index, steps.length),
         ),
   ];

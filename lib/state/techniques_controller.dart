@@ -4,7 +4,6 @@ import 'package:cadence/models/technique.dart';
 import 'package:cadence/state/load_state.dart';
 import 'package:flutter/foundation.dart';
 
-/// The state of the Techniques screen: the catalog and its search (F24).
 class TechniquesController extends ChangeNotifier {
   TechniquesController({required this._techniques});
 
@@ -17,7 +16,7 @@ class TechniquesController extends ChangeNotifier {
   LoadState<List<Technique>> get state => _state;
   SearchFilter get filter => _filter;
 
-  List<Technique> get visible => switch (_state) {
+  List<Technique> get visibleTechniques => switch (_state) {
     Ready(:final data) => data.where(_filter.matchesTechnique).toList(),
     _ => const [],
   };

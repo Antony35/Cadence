@@ -4,40 +4,30 @@ import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/technique_image.dart';
 import 'package:flutter/material.dart';
 
-/// What the user chose in the technique window. A `sealed` class, like the
-/// load states: the form handles each case in an exhaustive `switch`.
 sealed class StepEdit {
   const StepEdit();
 }
 
-/// « Ajouter » or « Valider »: the step with its side and target.
 final class SetStep extends StepEdit {
   const SetStep(this.step);
 
   final ComboStep step;
 }
 
-/// « Avant » (-1) or « Après » (+1).
 final class MoveStep extends StepEdit {
   const MoveStep(this.offset);
 
   final int offset;
 }
 
-/// « Retirer ».
 final class RemoveStep extends StepEdit {
   const RemoveStep();
 }
 
-/// F9, F10: the technique window, a sheet that rises from the bottom.
-///
-/// For a new step, [current] is null and the window offers « Ajouter ».
-/// For a step of the sequence, it also offers to move or remove it.
-/// `await` waits until the user chooses; null means closed without choice.
 Future<StepEdit?> showStepSheet(
   BuildContext context, {
   required Technique technique,
-  ComboStep? current,
+  ComboStep? editedStep,
   bool canMoveBefore = false,
   bool canMoveAfter = false,
 }) => showModalBottomSheet<StepEdit>(
@@ -46,7 +36,7 @@ Future<StepEdit?> showStepSheet(
   isScrollControlled: true,
   builder: (_) => _StepSheet(
     technique: technique,
-    current: current,
+    editedStep: editedStep,
     canMoveBefore: canMoveBefore,
     canMoveAfter: canMoveAfter,
   ),
@@ -55,13 +45,13 @@ Future<StepEdit?> showStepSheet(
 class _StepSheet extends StatefulWidget {
   const _StepSheet({
     required this.technique,
-    required this.current,
+    required this.editedStep,
     required this.canMoveBefore,
     required this.canMoveAfter,
   });
 
   final Technique technique;
-  final ComboStep? current;
+  final ComboStep? editedStep;
   final bool canMoveBefore;
   final bool canMoveAfter;
 
@@ -69,12 +59,10 @@ class _StepSheet extends StatefulWidget {
   State<_StepSheet> createState() => _StepSheetState();
 }
 
-/// The side and target being chosen are local state: they only matter to
-/// this window, until « Ajouter ».
 class _StepSheetState extends State<_StepSheet> {
-  late Side? _side = widget.current?.side ?? widget.technique.defaultSide;
+  late Side? _side = widget.editedStep?.side ?? widget.technique.defaultSide;
   late Target? _target =
-      widget.current?.target ?? widget.technique.defaultTarget;
+      widget.editedStep?.target ?? widget.technique.defaultTarget;
 
   ComboStep get _step =>
       ComboStep(technique: widget.technique, side: _side, target: _target);
@@ -86,7 +74,7 @@ class _StepSheetState extends State<_StepSheet> {
     final technique = widget.technique;
     final text = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
-    final editing = widget.current != null;
+    final isEditing = widget.editedStep != null;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -123,7 +111,6 @@ class _StepSheetState extends State<_StepSheet> {
                 ),
               ],
             ),
-            // Only the choices the technique accepts (F9).
             if (technique.sides.length > 1) ...[
               _Label('Côté'),
               SegmentedButton<Side>(
@@ -153,14 +140,13 @@ class _StepSheetState extends State<_StepSheet> {
               ),
             ],
             const SizedBox(height: 24),
-            // What the list and the voice will say (D3).
             Text(
               '« ${_step.label} »',
               style: text.titleSmall,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            if (editing) ...[
+            if (isEditing) ...[
               Row(
                 children: [
                   Expanded(
@@ -199,7 +185,7 @@ class _StepSheetState extends State<_StepSheet> {
             ],
             FilledButton(
               onPressed: () => _close(SetStep(_step)),
-              child: Text(editing ? 'Valider' : 'Ajouter'),
+              child: Text(isEditing ? 'Valider' : 'Ajouter'),
             ),
           ],
         ),

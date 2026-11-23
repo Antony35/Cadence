@@ -23,26 +23,26 @@ void main() {
   group('building the sequence (F9, F10, F11)', () {
     test('add, replace, move and remove', () {
       form
-        ..add(step('jab'))
-        ..add(step('cross'))
-        ..add(step('low_kick'));
+        ..addStep(step('jab'))
+        ..addStep(step('cross'))
+        ..addStep(step('low_kick'));
       expect(slugs(), ['jab', 'cross', 'low_kick']);
 
-      form.replace(0, step('hook', side: Side.rear, target: Target.body));
+      form.replaceStep(0, step('hook', side: Side.rear, target: Target.body));
       expect(form.steps.first.label, 'Crochet arrière au corps');
 
-      form.move(2, -1);
+      form.moveStep(2, -1);
       expect(slugs(), ['hook', 'low_kick', 'cross']);
-      form.move(0, -1); // Already first: nothing moves.
+      form.moveStep(0, -1); // Already first: nothing moves.
       expect(slugs(), ['hook', 'low_kick', 'cross']);
 
-      form.remove(1);
+      form.removeStep(1);
       expect(slugs(), ['hook', 'cross']);
     });
 
     test('no more than 12 steps', () {
       for (var i = 0; i < 13; i++) {
-        form.add(step(i.isEven ? 'jab' : 'cross'));
+        form.addStep(step(i.isEven ? 'jab' : 'cross'));
       }
       expect(form.steps, hasLength(ComboRules.maxSteps));
       expect(form.isFull, isTrue);
@@ -55,19 +55,19 @@ void main() {
 
   group('saving', () {
     test('T13 — one step: refused before the database', () async {
-      form.add(step('jab'));
+      form.addStep(step('jab'));
       expect(await form.save(''), isNull);
       expect(form.problem, isA<InvalidCombo>());
       expect(repository.writes, 0);
       // Any change clears the message.
-      form.add(step('cross'));
+      form.addStep(step('cross'));
       expect(form.problem, isNull);
     });
 
     test('a valid combo is created, due tomorrow', () async {
       form
-        ..add(step('jab'))
-        ..add(step('cross'));
+        ..addStep(step('jab'))
+        ..addStep(step('cross'));
       final combo = await form.save('  Base  ');
       expect(combo?.name, 'Base');
       expect(combo?.dueOn, DateTime(2026, 11, 24));
@@ -77,8 +77,8 @@ void main() {
     test('F12 — a duplicate gives the id of the existing combo', () async {
       repository.combos = [combo(id: 7, dueOn: DateTime(2026, 11, 24))];
       form
-        ..add(step('jab'))
-        ..add(step('cross'));
+        ..addStep(step('jab'))
+        ..addStep(step('cross'));
       expect(await form.save('Autre nom'), isNull);
       expect((form.problem! as DuplicateCombo).existingId, 7);
     });
@@ -86,21 +86,21 @@ void main() {
     test('F13 — a failure keeps the sequence', () async {
       repository.writeError = Exception('disk full');
       form
-        ..add(step('jab'))
-        ..add(step('cross'));
+        ..addStep(step('jab'))
+        ..addStep(step('cross'));
       expect(await form.save(''), isNull);
       expect(form.problem, isA<SaveFailed>());
       expect(form.steps, hasLength(2));
-      expect(form.saving, isFalse);
+      expect(form.isSaving, isFalse);
     });
 
     test('F13 — two touches save once', () async {
       repository.writeGate = Completer();
       form
-        ..add(step('jab'))
-        ..add(step('cross'));
+        ..addStep(step('jab'))
+        ..addStep(step('cross'));
       final first = form.save('');
-      expect(form.saving, isTrue);
+      expect(form.isSaving, isTrue);
       expect(await form.save(''), isNull);
       repository.writeGate!.complete();
       expect(await first, isNotNull);
@@ -115,12 +115,12 @@ void main() {
       final edit = ComboFormController(
         combos: repository,
         clock: FixedClock(),
-        editing: original,
+        editedCombo: original,
       );
       addTearDown(edit.dispose);
 
       expect(edit.hasChanges('Base'), isFalse);
-      edit.add(step('low_kick'));
+      edit.addStep(step('low_kick'));
       expect(edit.hasChanges('Base'), isTrue);
 
       final saved = await edit.save('Base');

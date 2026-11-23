@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// One line of a sheet (technique, combo): the label in small capitals, the value beside it.
 class FactRow extends StatelessWidget {
   const FactRow(this.label, this.value, {super.key});
 

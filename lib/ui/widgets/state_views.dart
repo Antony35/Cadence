@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-// The views of the four states (§ 5 of the spec), shared by every screen.
-
-/// The loading state.
 class LoadingView extends StatelessWidget {
   const LoadingView({super.key});
 
@@ -11,8 +8,6 @@ class LoadingView extends StatelessWidget {
       const Center(child: CircularProgressIndicator());
 }
 
-/// An icon (or a larger [visual]), a title, a sentence and an optional
-/// button, centered.
 class MessageView extends StatelessWidget {
   const MessageView({
     super.key,
@@ -25,7 +20,6 @@ class MessageView extends StatelessWidget {
 
   final IconData icon;
 
-  /// Replaces the icon: the logo on the empty main screen.
   final Widget? visual;
   final String title;
   final String text;
@@ -36,7 +30,6 @@ class MessageView extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     return Center(
-      // Scrolls on a small screen or with enlarged text.
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
         child: Column(
@@ -68,7 +61,6 @@ class MessageView extends StatelessWidget {
   }
 }
 
-/// The error state: the controller's message and « Réessayer » (S1, S3).
 class ErrorView extends StatelessWidget {
   const ErrorView({super.key, required this.message, required this.onRetry});
 
@@ -88,7 +80,6 @@ class ErrorView extends StatelessWidget {
   );
 }
 
-/// A search or a filter without result: not the empty state (S2).
 class NoResultView extends StatelessWidget {
   const NoResultView({super.key, required this.onClear});
 

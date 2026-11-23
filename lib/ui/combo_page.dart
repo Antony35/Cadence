@@ -12,8 +12,6 @@ import 'package:cadence/ui/widgets/technique_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-/// E3: the sheet of a combo (F16 to F18). Closes with true when the combo
-/// was deleted.
 class ComboPage extends StatefulWidget {
   const ComboPage({super.key, required this.id});
 
@@ -37,17 +35,17 @@ class _ComboPageState extends State<ComboPage> {
     super.dispose();
   }
 
-  /// F17: the form, filled in; the sheet is read again on return.
   Future<void> _edit(Combo combo) async {
     await Navigator.push(
       context,
-      MaterialPageRoute<Combo>(builder: (_) => ComboFormPage(editing: combo)),
+      MaterialPageRoute<Combo>(
+        builder: (_) => ComboFormPage(editedCombo: combo),
+      ),
     );
     if (!mounted) return;
     await _controller.load();
   }
 
-  /// F18: nothing is deleted before the confirmation.
   Future<void> _delete(Combo combo) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -73,7 +71,6 @@ class _ComboPageState extends State<ComboPage> {
         ],
       ),
     );
-    // Cancel, or a touch outside the window: nothing changes.
     if (confirmed != true || !mounted) return;
 
     final deleted = await _controller.delete();
@@ -97,7 +94,7 @@ class _ComboPageState extends State<ComboPage> {
           appBar: AppBar(
             title: const Text('ENCHAÎNEMENT'),
             actions: [
-              if (state case Ready(data: (:final combo, reviews: _))) ...[
+              if (state case Ready(data: (:final combo, reviewCount: _))) ...[
                 IconButton(
                   tooltip: 'Modifier',
                   icon: const Icon(Icons.edit_outlined),
@@ -117,7 +114,6 @@ class _ComboPageState extends State<ComboPage> {
               message: message,
               onRetry: _controller.load,
             ),
-            // A combo is read by its id: there is no empty case.
             Empty() => const SizedBox.shrink(),
             Ready(:final data) => _details(data),
           },
@@ -127,7 +123,7 @@ class _ComboPageState extends State<ComboPage> {
   }
 
   Widget _details(ComboDetail detail) {
-    final (:combo, :reviews) = detail;
+    final (:combo, :reviewCount) = detail;
     final text = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
     final due = dueLabel(combo.dueOn, _controller.today);
@@ -154,7 +150,6 @@ class _ComboPageState extends State<ComboPage> {
             ],
           ),
         ),
-        // F16: each step with its image, its label (D3) and its family.
         for (final (index, step) in combo.steps.indexed) ...[
           if (index > 0) const Divider(),
           Padding(
@@ -189,7 +184,7 @@ class _ComboPageState extends State<ComboPage> {
           ),
         ],
         const SizedBox(height: 40),
-        FactRow('Révisions', plural(reviews, 'révision', 'révisions')),
+        FactRow('Révisions', plural(reviewCount, 'révision', 'révisions')),
         FactRow('Créé le', dayLabel(combo.createdAt)),
         FactRow('Modifié le', dayLabel(combo.updatedAt)),
       ],

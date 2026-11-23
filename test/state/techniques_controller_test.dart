@@ -16,12 +16,14 @@ void main() {
       );
       addTearDown(controller.dispose);
       await controller.load();
-      expect(controller.visible, hasLength(41));
+      expect(controller.visibleTechniques, hasLength(41));
 
       controller.selectFamily(Family.knee);
-      expect(controller.visible, hasLength(4));
+      expect(controller.visibleTechniques, hasLength(4));
       controller.search('saute');
-      expect(controller.visible.map((t) => t.slug), ['knee_jumping']);
+      expect(controller.visibleTechniques.map((technique) => technique.slug), [
+        'knee_jumping',
+      ]);
     });
 
     test('a read error is shown as an error', () async {

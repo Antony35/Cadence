@@ -14,31 +14,27 @@ class DriftComboRepository implements ComboRepository {
   final DriftTechniqueRepository _techniques;
 
   @override
-  Future<List<Combo>> findAll() => _load();
+  Future<List<Combo>> findAll() => _findWhere();
 
-  /// The optimized query of the session: SQLite reads only the due combos,
-  /// through the index on `due_on`.
   @override
-  Future<List<Combo>> findDue(DateTime today) => _load(
+  Future<List<Combo>> findDue(DateTime today) => _findWhere(
     (combos) =>
         combos.dueOn.isSmallerOrEqualValue(const DayConverter().toSql(today)),
   );
 
-  /// `WHERE id IN (SELECT combo_id FROM combo_steps WHERE technique_id = ?)`,
-  /// through the index on `combo_steps.technique_id`.
   @override
   Future<List<Combo>> findWithTechnique(String slug) async {
-    final techniqueId = (await _techniques.idBySlug())[slug];
+    final techniqueId = (await _techniques.techniqueIdsBySlug())[slug];
     if (techniqueId == null) return const [];
     final usedIn = _db.selectOnly(_db.comboSteps)
       ..addColumns([_db.comboSteps.comboId])
       ..where(_db.comboSteps.techniqueId.equals(techniqueId));
-    return _load((combos) => combos.id.isInQuery(usedIn));
+    return _findWhere((combos) => combos.id.isInQuery(usedIn));
   }
 
   @override
   Future<Combo> findById(int id) async {
-    final found = await _load((combos) => combos.id.equals(id));
+    final found = await _findWhere((combos) => combos.id.equals(id));
     if (found.isEmpty) throw NotFoundException('combo', id);
     return found.single;
   }
@@ -59,11 +55,10 @@ class DriftComboRepository implements ComboRepository {
     required DateTime now,
   }) {
     _validate(name, steps);
-    final cleanName = _clean(name);
+    final cleanName = _cleanName(name);
     final signature = ComboRules.signature(steps);
     final dueOn = Leitner.firstDueOn(now);
 
-    // R4: the combo and its steps are saved together, or not at all.
     return _db.transaction(() async {
       await _refuseDuplicate(signature);
       final id = await _db
@@ -99,26 +94,28 @@ class DriftComboRepository implements ComboRepository {
     required DateTime now,
   }) {
     _validate(name, steps);
-    final cleanName = _clean(name);
+    final cleanName = _cleanName(name);
     final signature = ComboRules.signature(steps);
 
     return _db.transaction(() async {
-      await _refuseDuplicate(signature, except: id);
-      final updated =
-          await (_db.update(_db.combos)..where((c) => c.id.equals(id))).write(
+      await _refuseDuplicate(signature, exceptId: id);
+      final updatedRows =
+          await (_db.update(
+            _db.combos,
+          )..where((combo) => combo.id.equals(id))).write(
             CombosCompanion(
               name: Value(cleanName),
               signature: Value(signature),
               updatedAt: Value(now),
             ),
           );
-      if (updated == 0) throw NotFoundException('combo', id);
+      if (updatedRows == 0) throw NotFoundException('combo', id);
 
-      // The steps are replaced, not compared: moving one step shifts all the
-      // positions, and (combo_id, position) is the primary key.
+      // Replaced, not compared: moving one step shifts every position, and
+      // (combo_id, position) is the primary key.
       await (_db.delete(
         _db.comboSteps,
-      )..where((s) => s.comboId.equals(id))).go();
+      )..where((step) => step.comboId.equals(id))).go();
       await _insertSteps(id, steps);
       return findById(id);
     });
@@ -126,30 +123,28 @@ class DriftComboRepository implements ComboRepository {
 
   @override
   Future<void> delete(int id) async {
-    // The steps and the reviews follow: ON DELETE CASCADE.
-    final deleted = await (_db.delete(
+    // Steps and reviews go with it: ON DELETE CASCADE.
+    final deletedRows = await (_db.delete(
       _db.combos,
-    )..where((c) => c.id.equals(id))).go();
-    if (deleted == 0) throw NotFoundException('combo', id);
+    )..where((combo) => combo.id.equals(id))).go();
+    if (deletedRows == 0) throw NotFoundException('combo', id);
   }
 
-  /// Two queries whatever the number of combos (no N+1): the combos, then
-  /// all their steps, joined to `combos` to apply the same [filter]. The
-  /// steps are then put under their combo here.
-  Future<List<Combo>> _load([
+  // Two queries whatever the number of combos, not one per combo (N+1).
+  Future<List<Combo>> _findWhere([
     Expression<bool> Function($CombosTable combos)? filter,
   ]) async {
-    final techniques = await _techniques.byId();
+    final techniques = await _techniques.techniquesById();
     final combos = _db.combos;
     final comboSteps = _db.comboSteps;
 
-    // D7, the same order as Leitner.compare; the id makes it total.
+    // Same order as Leitner.compare; the id breaks ties.
     final comboQuery = _db.select(combos)
       ..orderBy([
-        (c) => OrderingTerm.asc(c.dueOn),
-        (c) => OrderingTerm.asc(c.box),
-        (c) => OrderingTerm.asc(c.createdAt),
-        (c) => OrderingTerm.asc(c.id),
+        (combo) => OrderingTerm.asc(combo.dueOn),
+        (combo) => OrderingTerm.asc(combo.box),
+        (combo) => OrderingTerm.asc(combo.createdAt),
+        (combo) => OrderingTerm.asc(combo.id),
       ]);
     if (filter != null) comboQuery.where(filter);
 
@@ -193,25 +188,24 @@ class DriftComboRepository implements ComboRepository {
     ];
   }
 
-  /// Checked inside the transaction, before writing. The UNIQUE constraint
-  /// stays as a safety net, but its error arrives wrapped differently in the
-  /// app (background isolate) and in the tests: it is not parsed.
-  Future<void> _refuseDuplicate(String signature, {int? except}) async {
+  // The UNIQUE constraint stays as a safety net, but its error is wrapped
+  // differently in the app (background isolate) and in tests: not parsed.
+  Future<void> _refuseDuplicate(String signature, {int? exceptId}) async {
     final existingId = await findIdBySignature(signature);
-    if (existingId != null && existingId != except) {
+    if (existingId != null && existingId != exceptId) {
       throw DuplicateComboException(existingId);
     }
   }
 
   Future<void> _insertSteps(int comboId, List<ComboStep> steps) async {
-    final ids = await _techniques.idBySlug();
+    final techniqueIds = await _techniques.techniqueIdsBySlug();
     await _db.batch((batch) {
       batch.insertAll(_db.comboSteps, [
         for (final (position, step) in steps.indexed)
           ComboStepsCompanion.insert(
             comboId: comboId,
             position: position,
-            techniqueId: ids[step.technique.slug]!,
+            techniqueId: techniqueIds[step.technique.slug]!,
             side: Value(step.side),
             target: Value(step.target),
           ),
@@ -219,15 +213,13 @@ class DriftComboRepository implements ComboRepository {
     });
   }
 
-  /// The form validates first; reaching this is a programming error.
   static void _validate(String? name, List<ComboStep> steps) {
     if (ComboRules.validate(name, steps) case final error?) {
       throw ArgumentError('invalid combo: ${error.name}');
     }
   }
 
-  /// Saved without the spaces around; an empty name is no name (D4).
-  static String? _clean(String? name) {
+  static String? _cleanName(String? name) {
     final trimmed = name?.trim();
     return trimmed == null || trimmed.isEmpty ? null : trimmed;
   }

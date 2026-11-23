@@ -12,10 +12,6 @@ import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/screen_awake.dart';
 import 'package:cadence/state/speaker.dart';
 
-// Fakes of the services, in memory, for the controller and widget tests:
-// no database, and a test decides what a read returns or when it fails.
-
-/// Monday 23 November 2026, 9:00.
 final monday = DateTime(2026, 11, 23, 9);
 
 class FixedClock extends Clock {
@@ -156,10 +152,8 @@ class FakeReviewRepository implements ReviewRepository {
 
   final FakeComboRepository? combos;
 
-  /// Reviews per combo id.
   Map<int, int> counts = {};
 
-  /// The grades given, in order.
   final recorded = <(int comboId, Grade grade)>[];
 
   /// When set, every record throws it.
@@ -187,14 +181,11 @@ class FakeReviewRepository implements ReviewRepository {
   Future<int> countFor(int comboId) async => counts[comboId] ?? 0;
 }
 
-/// A voice that says nothing and answers at once: the test reads [said].
 class FakeSpeaker implements Speaker {
   FakeSpeaker({this.available = true});
 
-  /// False: no French voice on this phone (S4).
   final bool available;
 
-  /// Each call said ([Drill.call]), and its pace.
   final said = <(String call, Pace pace)>[];
   int stops = 0;
 
@@ -203,7 +194,7 @@ class FakeSpeaker implements Speaker {
 
   @override
   Future<void> speak(ComboStep step, Pace pace) async =>
-      said.add((Drill.call(step, pace), pace));
+      said.add((Drill.announcement(step, pace), pace));
 
   @override
   Future<void> stop() async => stops++;

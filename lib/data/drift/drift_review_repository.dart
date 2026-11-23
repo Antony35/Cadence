@@ -16,14 +16,12 @@ class DriftReviewRepository implements ReviewRepository {
     final box = Leitner.nextBox(combo.box, grade);
     final dueOn = Leitner.dueOn(box, now);
 
-    // R4: the review and the new due day are saved together. Any query run
-    // inside this callback belongs to the transaction; an exception cancels
-    // all of it (rollback).
     return _db.transaction(() async {
-      final updated =
-          await (_db.update(_db.combos)..where((c) => c.id.equals(combo.id)))
+      final updatedRows =
+          await (_db.update(_db.combos)
+                ..where((row) => row.id.equals(combo.id)))
               .write(CombosCompanion(box: Value(box), dueOn: Value(dueOn)));
-      if (updated == 0) throw NotFoundException('combo', combo.id);
+      if (updatedRows == 0) throw NotFoundException('combo', combo.id);
 
       await _db
           .into(_db.reviews)

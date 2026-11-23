@@ -3,13 +3,6 @@ import 'package:cadence/models/technique.dart';
 import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// C1: the search and the family filter, on one line: the families as text
-/// tabs, the magnifier on the right. Used on the main
-/// screen, the Techniques screen and, from step 4, the form.
-///
-/// The [filter] belongs to the screen's controller: this widget shows it and
-/// reports the changes. It only keeps what is about display: whether the
-/// text field is open.
 class SearchFilterBar extends StatefulWidget {
   const SearchFilterBar({
     super.key,
@@ -21,48 +14,37 @@ class SearchFilterBar extends StatefulWidget {
   final SearchFilter filter;
   final ValueChanged<String> onQueryChanged;
 
-  /// Null for « Toutes ».
   final ValueChanged<Family?> onFamilyChanged;
 
-  /// Fixed, so that a screen can pin the bar (the form).
   static const height = 56.0;
 
   @override
   State<SearchFilterBar> createState() => _SearchFilterBarState();
 }
 
-/// A [StatefulWidget] keeps its [State] object between two builds: the text
-/// field and its controller survive each keystroke.
 class _SearchFilterBarState extends State<SearchFilterBar> {
   late final _text = TextEditingController(text: widget.filter.query);
   final _focus = FocusNode();
   bool _editing = false;
 
-  // Whether tabs are hidden beyond each edge: those edges fade out, so the
-  // user sees that the line scrolls.
+  // A faded edge shows that the line scrolls.
   bool _moreBefore = false;
   bool _moreAfter = false;
 
   @override
   void initState() {
     super.initState();
-    // Leaving the field (back key, tap elsewhere) folds it back; the text
-    // stays and is shown as a chip.
     _focus.addListener(() {
       if (!_focus.hasFocus) setState(() => _editing = false);
     });
   }
 
-  /// Called when the screen rebuilds this widget with a new [filter]: after
-  /// « Tout effacer », the field must empty too.
   @override
   void didUpdateWidget(SearchFilterBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.filter.query != _text.text) _text.text = widget.filter.query;
   }
 
-  /// A [TextEditingController] and a [FocusNode] hold resources: they are
-  /// released when the widget leaves the screen.
   @override
   void dispose() {
     _text.dispose();
@@ -70,7 +52,6 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
     super.dispose();
   }
 
-  /// Called on each scroll, and when the line is first laid out or resized.
   bool _onScroll(ScrollMetrics metrics) {
     final before = metrics.pixels > metrics.minScrollExtent + 1;
     final after = metrics.pixels < metrics.maxScrollExtent - 1;
@@ -80,7 +61,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
         _moreAfter = after;
       });
     }
-    // Lets the notification go on to the screen, as if it was not caught.
+    // Lets the notification bubble up.
     return false;
   }
 
@@ -110,7 +91,6 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
         textInputAction: TextInputAction.search,
         onChanged: (text) {
           widget.onQueryChanged(text);
-          // Shows or hides the clear button.
           setState(() {});
         },
         onSubmitted: (_) => _focus.unfocus(),
@@ -137,9 +117,6 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
     );
   }
 
-  /// Fades the tabs out at the edges where more are hidden. The mask is
-  /// opaque in the middle and transparent at a faded edge: [BlendMode.dstIn]
-  /// keeps the tabs only where the mask is opaque.
   Widget _fadeEdges(Widget child) {
     const fade = 40.0;
     return ShaderMask(
@@ -166,11 +143,11 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
     return Row(
       children: [
         Expanded(
-          // ScrollMetricsNotification: the first layout, before any scroll.
+          // Also sent on the first layout, before any scroll.
           child: NotificationListener<ScrollMetricsNotification>(
-            onNotification: (n) => _onScroll(n.metrics),
+            onNotification: (notification) => _onScroll(notification.metrics),
             child: NotificationListener<ScrollUpdateNotification>(
-              onNotification: (n) => _onScroll(n.metrics),
+              onNotification: (notification) => _onScroll(notification.metrics),
               child: _fadeEdges(
                 ListView(
                   scrollDirection: Axis.horizontal,
@@ -198,7 +175,6 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                         label: family.label,
                         family: family,
                         selected: selected == family,
-                        // Touching the selected family again goes back to « Toutes ».
                         onTap: () => widget.onFamilyChanged(
                           selected == family ? null : family,
                         ),
@@ -220,9 +196,6 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
   }
 }
 
-/// One family as a text tab: capitals, a gold line under the selected one,
-/// and a square of the family color before the name (V3: never the color
-/// alone).
 class _Tab extends StatelessWidget {
   const _Tab({
     required this.label,
@@ -249,7 +222,6 @@ class _Tab extends StatelessWidget {
       button: true,
       child: InkWell(
         onTap: () {
-          // The touched tab slides toward the middle: the next ones appear.
           Scrollable.ensureVisible(
             context,
             alignment: 0.5,

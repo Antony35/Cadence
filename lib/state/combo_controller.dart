@@ -6,10 +6,8 @@ import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/load_state.dart';
 import 'package:flutter/foundation.dart';
 
-/// What the combo sheet shows: the combo and its number of reviews (F16).
-typedef ComboDetail = ({Combo combo, int reviews});
+typedef ComboDetail = ({Combo combo, int reviewCount});
 
-/// The state of the combo sheet (E3): reading it, deleting it.
 class ComboController extends ChangeNotifier {
   ComboController({
     required this.id,
@@ -30,14 +28,13 @@ class ComboController extends ChangeNotifier {
   LoadState<ComboDetail> get state => _state;
   DateTime get today => _today;
 
-  /// Like `find($id)` in Symfony, plus a count of the reviews.
   Future<void> load() async {
-    if (_state is! Ready) _set(const Loading());
+    if (_state is! Ready) _setState(const Loading());
     LoadState<ComboDetail> next;
     try {
       final combo = await _combos.findById(id);
-      final reviews = await _reviews.countFor(id);
-      next = Ready((combo: combo, reviews: reviews));
+      final reviewCount = await _reviews.countFor(id);
+      next = Ready((combo: combo, reviewCount: reviewCount));
     } on NotFoundException {
       next = const Failed("Cet enchaînement n'existe plus.");
     } catch (error) {
@@ -46,10 +43,9 @@ class ComboController extends ChangeNotifier {
     }
     if (_disposed) return;
     _today = dateOnly(_clock.now());
-    _set(next);
+    _setState(next);
   }
 
-  /// F18, after the confirmation. True when the combo is gone.
   Future<bool> delete() async {
     try {
       await _combos.delete(id);
@@ -62,7 +58,7 @@ class ComboController extends ChangeNotifier {
     }
   }
 
-  void _set(LoadState<ComboDetail> state) {
+  void _setState(LoadState<ComboDetail> state) {
     _state = state;
     notifyListeners();
   }

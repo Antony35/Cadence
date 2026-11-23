@@ -2,16 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-/// The broken rays of the logo poster, drawn behind a block (the round
-/// board). Decorative: faint, and the same pattern every time.
 class Sunburst extends StatelessWidget {
   const Sunburst({super.key, required this.colors, this.center});
 
-  /// Each ray takes the next color of the list.
   final List<Color> colors;
 
-  /// Where the rays start, as a fraction of the size; right by default,
-  /// behind the big figure's side.
   final Alignment? center;
 
   @override
@@ -21,8 +16,6 @@ class Sunburst extends StatelessWidget {
   );
 }
 
-/// A [CustomPainter] draws with lines and shapes on a canvas, like an HTML
-/// canvas: here, 36 rays cut into dashes.
 class _SunburstPainter extends CustomPainter {
   _SunburstPainter(this.colors, this.center);
 
@@ -43,7 +36,6 @@ class _SunburstPainter extends CustomPainter {
       final angle = 2 * pi * i / rays;
       final direction = Offset(cos(angle), sin(angle));
       paint.color = colors[i % colors.length];
-      // Dashes of varying length, starting away from the center.
       var from = 40.0 + (i % 3) * 14;
       var dash = 0;
       while (from < reach) {

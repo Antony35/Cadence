@@ -10,48 +10,38 @@ import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/speaker.dart';
 import 'package:flutter/foundation.dart';
 
-/// Where the session is (E4). A `sealed` class, like `LoadState`: the
-/// screen handles each phase in an exhaustive `switch`.
 sealed class SessionPhase {
   const SessionPhase();
 }
 
-/// Reading the combos and preparing the voice.
 final class Preparing extends SessionPhase {
   const Preparing();
 }
 
-/// The combos could not be read (S1, S3).
 final class SessionFailed extends SessionPhase {
   const SessionFailed(this.message);
 
   final String message;
 }
 
-/// F20: the combo is shown, the voice waits for « Commencer »: time to
-/// put the phone down and get on guard.
 final class Ready extends SessionPhase {
   const Ready();
 }
 
-/// F20, F21: the voice says [cue]; or waits on it, when [paused].
 final class Drilling extends SessionPhase {
-  const Drilling(this.cue, {this.paused = false});
+  const Drilling(this.cue, {this.isPaused = false});
 
   final Cue cue;
-  final bool paused;
+  final bool isPaused;
 }
 
-/// F22: the grade is asked. [saving] while it is written, [failed] when the
-/// write was refused: the grade can be given again.
 final class Grading extends SessionPhase {
-  const Grading({this.saving = false, this.failed = false});
+  const Grading({this.isSaving = false, this.hasFailed = false});
 
-  final bool saving;
-  final bool failed;
+  final bool isSaving;
+  final bool hasFailed;
 }
 
-/// F23: the series is over. [canContinue] when other combos are waiting.
 final class Finished extends SessionPhase {
   const Finished({required this.reviewed, required this.canContinue});
 
@@ -59,65 +49,54 @@ final class Finished extends SessionPhase {
   final bool canContinue;
 }
 
-/// The state of a session (F19 to F23).
-///
-/// The course itself (paces, order, gaps) comes from [Drill], a pure class.
-/// This controller plays it: it asks the [Speaker] to say each cue, waits
-/// for the end of the sentence, then for the silence after it.
 class SessionController extends ChangeNotifier {
   SessionController({
     required this._combos,
     required this._reviews,
     required this._clock,
     required this._speaker,
-    required this.ahead,
+    required this.reviewAhead,
   });
 
   final ComboRepository _combos;
   final ReviewRepository _reviews;
   final Clock _clock;
 
-  /// « Réviser en avance »: the next combos, even if not due yet (F19).
-  final bool ahead;
+  final bool reviewAhead;
 
-  /// Not final: the silent voice replaces it when it fails (S4).
+  // Not final: SilentSpeaker replaces a failing voice.
   Speaker _speaker;
   bool? _voiceAvailable;
 
   SessionPhase _phase = const Preparing();
   List<Combo> _series = const [];
-  List<Combo> _next = const [];
-  int _index = 0;
+  List<Combo> _nextSeries = const [];
+  int _comboIndex = 0;
   List<Cue> _cues = const [];
-  int _cue = 0;
-  final _reviewed = <int>{};
+  int _cueIndex = 0;
+  final _reviewedIds = <int>{};
 
-  /// Counts the runs of the voice, like `_loads` in `HomeController`: a
-  /// pause starts a new count, and the old run stops at its next check.
-  int _runs = 0;
-  Timer? _silence;
+  // Each run of the voice gets a number: a pause, a skip or a stop makes it
+  // stale, and the run ends at its next check.
+  int _runCount = 0;
+  Timer? _silenceTimer;
   bool _disposed = false;
 
   SessionPhase get phase => _phase;
 
-  /// False after the voice failed (S4): the screen says so.
   bool get voiceAvailable => _voiceAvailable ?? true;
 
-  /// The combo being reviewed, and its place in the series (« 2 / 5 »).
-  Combo get current => _series[_index];
-  int get index => _index;
+  Combo get currentCombo => _series[_comboIndex];
+  int get comboIndex => _comboIndex;
   int get seriesLength => _series.length;
 
   DateTime get today => dateOnly(_clock.now());
 
-  /// F22: the next due day if [grade] is given, shown on its button.
   DateTime dueOnAfter(Grade grade) =>
-      Leitner.dueOn(Leitner.nextBox(current.box, grade), _clock.now());
+      Leitner.dueOn(Leitner.nextBox(currentCombo.box, grade), _clock.now());
 
-  /// Prepares the voice once, reads the series and starts the first combo.
-  /// Also « Réessayer » after a read error.
   Future<void> start() async {
-    _set(const Preparing());
+    _setPhase(const Preparing());
     if (_voiceAvailable == null) {
       final ready = await _speaker.init();
       _voiceAvailable = ready;
@@ -125,121 +104,107 @@ class SessionController extends ChangeNotifier {
     }
     final List<Combo> series;
     try {
-      series = await _pick();
+      series = await _pickSeries();
     } catch (error) {
       debugPrint('SessionController.start: $error');
-      _set(const SessionFailed('Impossible de lire vos enchaînements.'));
+      _setPhase(const SessionFailed('Impossible de lire vos enchaînements.'));
       return;
     }
     if (_disposed) return;
-    _play(series);
+    _startSeries(series);
   }
 
-  /// F20: « Commencer », the first strike is said.
   void startCombo() {
     if (_phase is Ready) unawaited(_run());
   }
 
-  /// F21: the voice stops at once; [resume] says the cut strike again.
   void pause() {
-    if (_phase case Drilling(:final cue, paused: false)) {
-      _halt();
-      _set(Drilling(cue, paused: true));
+    if (_phase case Drilling(:final cue, isPaused: false)) {
+      _interrupt();
+      _setPhase(Drilling(cue, isPaused: true));
     }
   }
 
   void resume() {
-    if (_phase case Drilling(paused: true)) unawaited(_run());
+    if (_phase case Drilling(isPaused: true)) unawaited(_run());
   }
 
-  /// F21: « Passer à la note ».
   void skipToGrade() {
     if (_phase is Drilling) {
-      _halt();
-      _set(const Grading());
+      _interrupt();
+      _setPhase(const Grading());
     }
   }
 
-  /// F22: the grade is saved at once, so nothing is lost if the session is
-  /// stopped afterwards.
   Future<void> grade(Grade grade) async {
-    if (_phase case Grading(saving: false)) {
-      _set(const Grading(saving: true));
+    if (_phase case Grading(isSaving: false)) {
+      _setPhase(const Grading(isSaving: true));
       try {
-        await _reviews.record(current, grade, now: _clock.now());
+        await _reviews.record(currentCombo, grade, now: _clock.now());
       } catch (error) {
         debugPrint('SessionController.grade: $error');
-        _set(const Grading(failed: true));
+        _setPhase(const Grading(hasFailed: true));
         return;
       }
       if (_disposed) return; // Stopped while saving: no next combo.
-      _reviewed.add(current.id);
-      if (_index + 1 < _series.length) {
-        _index++;
-        _begin();
+      _reviewedIds.add(currentCombo.id);
+      if (_comboIndex + 1 < _series.length) {
+        _comboIndex++;
+        _prepareCurrentCombo();
       } else {
         await _finish();
       }
     }
   }
 
-  /// F23: a new series with the combos still waiting.
   void continueSession() {
-    if (_phase case Finished(canContinue: true)) _play(_next);
+    if (_phase case Finished(canContinue: true)) _startSeries(_nextSeries);
   }
 
-  /// F21: « Arrêter ». The grades already given are saved.
-  void stop() => _halt();
+  void stop() => _interrupt();
 
-  Future<List<Combo>> _pick() async {
-    final candidates = ahead
+  Future<List<Combo>> _pickSeries() async {
+    final candidates = reviewAhead
         ? await _combos.findAll()
         : await _combos.findDue(today);
-    return Drill.series(candidates, _reviewed);
+    return Drill.series(candidates, _reviewedIds);
   }
 
-  void _play(List<Combo> series) {
+  void _startSeries(List<Combo> series) {
     if (series.isEmpty) {
-      _set(Finished(reviewed: _reviewed.length, canContinue: false));
+      _setPhase(Finished(reviewed: _reviewedIds.length, canContinue: false));
       return;
     }
     _series = series;
-    _index = 0;
-    _begin();
+    _comboIndex = 0;
+    _prepareCurrentCombo();
   }
 
-  /// Prepares the cues of the current combo; the voice waits for
-  /// [startCombo].
-  void _begin() {
-    _cues = Drill.cues(current.steps);
-    _cue = 0;
-    _set(const Ready());
+  void _prepareCurrentCombo() {
+    _cues = Drill.cues(currentCombo.steps);
+    _cueIndex = 0;
+    _setPhase(const Ready());
   }
 
-  /// Says the cues from [_cue] to the end, then asks the grade. Returns as
-  /// soon as a pause, a skip or a stop has started a new count.
   Future<void> _run() async {
-    final run = ++_runs;
-    while (_cue < _cues.length) {
-      final cue = _cues[_cue];
-      _set(Drilling(cue));
+    final run = ++_runCount;
+    while (_cueIndex < _cues.length) {
+      final cue = _cues[_cueIndex];
+      _setPhase(Drilling(cue));
       await _say(cue, run);
-      if (run != _runs) return;
-      await _wait(cue.pauseAfter);
-      if (run != _runs) return;
-      _cue++;
+      if (_isStale(run)) return;
+      await _waitSilence(cue.pauseAfter);
+      if (_isStale(run)) return;
+      _cueIndex++;
     }
-    _set(const Grading());
+    _setPhase(const Grading());
   }
 
-  /// S4: if the voice fails during the session, the silent one takes over.
-  /// A call cut by a pause, a skip or a stop may fail too (the player was
-  /// interrupted): that is not a failure of the voice, which is kept.
   Future<void> _say(Cue cue, int run) async {
     try {
       await _speaker.speak(cue.step, cue.pace);
     } catch (error) {
-      if (run != _runs) return;
+      if (_isStale(run)) return;
       debugPrint('SessionController._say: $error');
       _goSilent();
       notifyListeners();
@@ -247,17 +212,18 @@ class SessionController extends ChangeNotifier {
     }
   }
 
-  Future<void> _wait(Duration duration) {
+  bool _isStale(int run) => run != _runCount;
+
+  Future<void> _waitSilence(Duration duration) {
     if (duration == Duration.zero) return Future.value();
     final done = Completer<void>();
-    _silence = Timer(duration, done.complete);
+    _silenceTimer = Timer(duration, done.complete);
     return done.future;
   }
 
-  /// Stops the voice and the silence; the run in progress ends.
-  void _halt() {
-    _runs++;
-    _silence?.cancel();
+  void _interrupt() {
+    _runCount++;
+    _silenceTimer?.cancel();
     unawaited(_speaker.stop());
   }
 
@@ -268,15 +234,20 @@ class SessionController extends ChangeNotifier {
 
   Future<void> _finish() async {
     try {
-      _next = await _pick();
+      _nextSeries = await _pickSeries();
     } catch (error) {
       debugPrint('SessionController._finish: $error');
-      _next = const [];
+      _nextSeries = const [];
     }
-    _set(Finished(reviewed: _reviewed.length, canContinue: _next.isNotEmpty));
+    _setPhase(
+      Finished(
+        reviewed: _reviewedIds.length,
+        canContinue: _nextSeries.isNotEmpty,
+      ),
+    );
   }
 
-  void _set(SessionPhase phase) {
+  void _setPhase(SessionPhase phase) {
     if (_disposed) return;
     _phase = phase;
     notifyListeners();
@@ -285,7 +256,7 @@ class SessionController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
-    _halt();
+    _interrupt();
     super.dispose();
   }
 }

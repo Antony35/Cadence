@@ -8,10 +8,6 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 part 'database.g.dart';
 
-/// The SQLite database of the app (R2): the six tables and the catalog.
-///
-/// The constructor takes the connection, so the tests open an in-memory
-/// database and the app opens the `cadence.sqlite` file ([AppDatabase.open]).
 @DriftDatabase(
   tables: [
     Techniques,
@@ -25,11 +21,9 @@ part 'database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
-  /// The file of the app, in its private folder.
   AppDatabase.open() : this(driftDatabase(name: 'cadence'));
 
-  /// Bumped with each change of the tables, together with a migration step
-  /// and a snapshot in `drift_schemas/`.
+  // Bump with a migration step and a snapshot in `drift_schemas/`.
   @override
   int get schemaVersion => 1;
 
@@ -39,14 +33,12 @@ class AppDatabase extends _$AppDatabase {
       await migrator.createAll();
       await _insertCatalog();
     },
-    // SQLite ignores foreign keys unless asked, on every connection.
+    // SQLite ignores foreign keys unless enabled on each connection.
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
 
-  /// D1: the 41 techniques, in the order of `catalog.dart`: the first one
-  /// gets position 1.
   Future<void> _insertCatalog() async {
     for (final (index, technique) in catalog.indexed) {
       final id = await into(techniques).insert(

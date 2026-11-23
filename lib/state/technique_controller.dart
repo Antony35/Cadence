@@ -6,8 +6,6 @@ import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/load_state.dart';
 import 'package:flutter/foundation.dart';
 
-/// The state of a technique sheet: the combos that use it (F25). The
-/// technique itself comes from the catalog, already read.
 class TechniqueController extends ChangeNotifier {
   TechniqueController({
     required this.technique,
@@ -27,8 +25,7 @@ class TechniqueController extends ChangeNotifier {
   DateTime get today => _today;
 
   Future<void> load() async {
-    // A reload keeps the list on screen.
-    if (_combosUsing is! Ready) _set(const Loading());
+    if (_combosUsing is! Ready) _setState(const Loading());
     LoadState<List<Combo>> next;
     try {
       final combos = await _combos.findWithTechnique(technique.slug);
@@ -39,10 +36,10 @@ class TechniqueController extends ChangeNotifier {
     }
     if (_disposed) return;
     _today = dateOnly(_clock.now());
-    _set(next);
+    _setState(next);
   }
 
-  void _set(LoadState<List<Combo>> state) {
+  void _setState(LoadState<List<Combo>> state) {
     _combosUsing = state;
     notifyListeners();
   }

@@ -9,8 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
-/// The root of the app. It receives the services built by `main.dart` (or
-/// fakes, in the tests) and makes them available to every screen.
 class CadenceApp extends StatelessWidget {
   const CadenceApp({
     super.key,
@@ -33,10 +31,7 @@ class CadenceApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The service container of the app: any screen below can ask for one
-    // with `context.read<ComboRepository>()`, without it being passed from
-    // screen to screen. Above MaterialApp, so that the screens pushed later
-    // see them too.
+    // Above MaterialApp, so that pushed screens see the services too.
     return MultiProvider(
       providers: [
         Provider<TechniqueRepository>.value(value: techniques),
@@ -52,13 +47,11 @@ class CadenceApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
-        // Material's own texts in French: tooltips, the date picker…
         locale: const Locale('fr'),
         supportedLocales: const [Locale('fr')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        // Android draws the app under its navigation bar (gestures or
-        // buttons). Every screen stops above it: one SafeArea around all of
-        // them, on a background of the theme's color.
+        // Android draws the app under its navigation bar: one SafeArea for every
+        // screen.
         builder: (context, child) => ColoredBox(
           color: Theme.of(context).colorScheme.surface,
           child: SafeArea(top: false, child: child!),

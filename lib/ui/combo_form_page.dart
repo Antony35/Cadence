@@ -17,12 +17,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-/// E2: creates a combo, or edits [editing] (F6 to F15). Closes with the
-/// saved combo as its result.
 class ComboFormPage extends StatefulWidget {
-  const ComboFormPage({super.key, this.editing});
+  const ComboFormPage({super.key, this.editedCombo});
 
-  final Combo? editing;
+  final Combo? editedCombo;
 
   @override
   State<ComboFormPage> createState() => _ComboFormPageState();
@@ -32,21 +30,17 @@ class _ComboFormPageState extends State<ComboFormPage> {
   late final _form = ComboFormController(
     combos: context.read<ComboRepository>(),
     clock: context.read<Clock>(),
-    editing: widget.editing,
+    editedCombo: widget.editedCombo,
   );
 
-  /// The catalog and its search: the same controller as the Techniques
-  /// screen, reused.
   late final _catalog = TechniquesController(
     techniques: context.read<TechniqueRepository>(),
   )..load();
 
-  late final _name = TextEditingController(text: widget.editing?.name);
+  late final _name = TextEditingController(text: widget.editedCombo?.name);
 
-  /// Gives access to the [Form] below, to validate its fields.
   final _formKey = GlobalKey<FormState>();
 
-  /// Moves the page back to the top, where the problem is shown.
   final _scroll = ScrollController();
 
   @override
@@ -58,55 +52,47 @@ class _ComboFormPageState extends State<ComboFormPage> {
     super.dispose();
   }
 
-  /// F9: a technique without choice is added at once; the others open the
-  /// technique window.
   Future<void> _addTechnique(Technique technique) async {
     _dismissKeyboard();
     if (technique.hasNoChoice) {
-      _form.add(ComboStep.withDefaults(technique));
+      _form.addStep(ComboStep.withDefaults(technique));
       return;
     }
     final edit = await showStepSheet(context, technique: technique);
-    if (edit is SetStep) _form.add(edit.step);
+    if (edit is SetStep) _form.addStep(edit.step);
   }
 
-  /// Touching a technique ends the typing: the keyboard closes, and the
-  /// field is forgotten, so that it does not take the focus back when the
-  /// window closes (Flutter gives the focus back to the last focused field).
   void _dismissKeyboard() => FocusManager.instance.primaryFocus?.unfocus();
 
-  /// F10: the same window, to correct, move or remove a step.
   Future<void> _editStep(int index) async {
     _dismissKeyboard();
     final step = _form.steps[index];
     final edit = await showStepSheet(
       context,
       technique: step.technique,
-      current: step,
+      editedStep: step,
       canMoveBefore: index > 0,
       canMoveAfter: index < _form.steps.length - 1,
     );
     switch (edit) {
       case SetStep(:final step):
-        _form.replace(index, step);
+        _form.replaceStep(index, step);
       case MoveStep(:final offset):
-        _form.move(index, offset);
+        _form.moveStep(index, offset);
       case RemoveStep():
-        _form.remove(index);
+        _form.removeStep(index);
       case null:
-        break; // Closed without choosing.
+        break;
     }
   }
 
   Future<void> _save() async {
-    // Like `$form->isValid()`: runs the validator of each field.
     if (!_formKey.currentState!.validate()) return;
     final combo = await _form.save(_name.text);
     if (!mounted) return;
     if (combo != null) {
       Navigator.pop(context, combo);
     } else if (_scroll.hasClients) {
-      // F13: the screen stays open with the input; the message is at the top.
       await _scroll.animateTo(
         0,
         duration: const Duration(milliseconds: 250),
@@ -115,7 +101,6 @@ class _ComboFormPageState extends State<ComboFormPage> {
     }
   }
 
-  /// F15: leaving with unsaved input asks first.
   Future<void> _confirmLeave() async {
     final leave = await showDialog<bool>(
       context: context,
@@ -137,48 +122,38 @@ class _ComboFormPageState extends State<ComboFormPage> {
     if (leave == true && mounted) Navigator.pop(context);
   }
 
-  /// F12: « Ouvrir l'existant » shows the existing combo, then closes the
-  /// form behind it.
-  ///
-  /// Not `pushReplacement`: it would give the form's result to the screen
-  /// below at once, and that screen would read its list too early, before a
-  /// change made on the sheet.
   Future<void> _openExisting(int id) async {
     await Navigator.push(
       context,
       MaterialPageRoute<bool>(builder: (_) => ComboPage(id: id)),
     );
-    // `pop`, unlike the back button, does not ask PopScope: the input is
-    // left on purpose.
+    // pop() skips PopScope: leaving the input here is intended.
     if (mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Rebuilds when the sequence, the catalog or the name changes.
     return ListenableBuilder(
       listenable: Listenable.merge([_form, _catalog, _name]),
       builder: (context, _) {
-        final saving = _form.saving;
+        final isSaving = _form.isSaving;
         return PopScope(
-          // The back button closes the screen only when nothing is lost.
           canPop: !_form.hasChanges(_name.text),
           onPopInvokedWithResult: (didPop, _) {
-            if (!didPop && !saving) _confirmLeave();
+            if (!didPop && !isSaving) _confirmLeave();
           },
           child: Scaffold(
             appBar: AppBar(
               title: Text(
-                _form.editing == null ? 'NOUVEL ENCHAÎNEMENT' : 'MODIFIER',
+                _form.editedCombo == null ? 'NOUVEL ENCHAÎNEMENT' : 'MODIFIER',
               ),
-              bottom: saving
+              bottom: isSaving
                   ? const PreferredSize(
                       preferredSize: Size.fromHeight(2),
                       child: LinearProgressIndicator(minHeight: 2),
                     )
                   : null,
             ),
-            // At the bottom, full width, within reach of the thumb.
             bottomNavigationBar: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -188,14 +163,11 @@ class _ComboFormPageState extends State<ComboFormPage> {
                   16,
                 ),
                 child: FilledButton(
-                  // F13: disabled while saving, so two touches save once.
-                  onPressed: saving ? null : _save,
+                  onPressed: isSaving ? null : _save,
                   child: const Text('Enregistrer'),
                 ),
               ),
             ),
-            // One scrolling page: the name goes away under the bar, the
-            // sequence and the search stay pinned, the grid scrolls below.
             body: CustomScrollView(
               controller: _scroll,
               slivers: [
@@ -207,15 +179,12 @@ class _ComboFormPageState extends State<ComboFormPage> {
                       AppTheme.gutter,
                       0,
                     ),
-                    // The Flutter equivalent of a FormType: the fields and
-                    // their constraints.
                     child: Form(
                       key: _formKey,
                       child: TextFormField(
                         controller: _name,
                         textCapitalization: TextCapitalization.sentences,
                         maxLength: ComboRules.maxNameLength,
-                        // The counter shows the limit; the validator explains.
                         maxLengthEnforcement: MaxLengthEnforcement.none,
                         decoration: const InputDecoration(
                           labelText: 'Nom (facultatif)',
@@ -248,9 +217,6 @@ class _ComboFormPageState extends State<ComboFormPage> {
     );
   }
 
-  /// The sequence and, once the catalog is read, the search: pinned at the
-  /// top while the grid scrolls. A pinned header needs a fixed height,
-  /// computed from the text size of the phone.
   Widget _pinnedHeader(BuildContext context) {
     final ready = _catalog.state is Ready;
     final height =
@@ -266,7 +232,6 @@ class _ComboFormPageState extends State<ComboFormPage> {
           color: Theme.of(context).colorScheme.surface,
           child: Column(
             children: [
-              // Takes what the bar leaves: never a half pixel too much.
               Expanded(
                 child: _Sequence(steps: _form.steps, onTap: _editStep),
               ),
@@ -292,20 +257,18 @@ class _ComboFormPageState extends State<ComboFormPage> {
       ),
     ],
     Empty() => const [],
-    Ready() when _catalog.visible.isEmpty => [
+    Ready() when _catalog.visibleTechniques.isEmpty => [
       SliverFillRemaining(child: NoResultView(onClear: _catalog.clearFilter)),
     ],
     Ready() => [
       TechniqueGrid.sliver(
-        techniques: _catalog.visible,
-        // F11: at 12 steps, the grid is disabled.
+        techniques: _catalog.visibleTechniques,
         onTap: _form.isFull ? null : _addTechnique,
       ),
     ],
   };
 }
 
-/// A header of fixed [height] for [SliverPersistentHeader].
 class _FixedHeader extends SliverPersistentHeaderDelegate {
   _FixedHeader({required this.height, required this.child});
 
@@ -326,26 +289,28 @@ class _FixedHeader extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(_FixedHeader old) => true;
 }
 
-/// F7: the sequence being built, numbered, with « 3 / 12 ».
 class _Sequence extends StatelessWidget {
   const _Sequence({required this.steps, required this.onTap});
 
-  /// The title, then a row of [_StepTile]: their height grows with the text
-  /// size of the phone (V4).
   static double height(BuildContext context) {
     final scaler = MediaQuery.textScalerOf(context);
     final text = Theme.of(context).textTheme;
-    double line(TextStyle? style) =>
+    double lineHeight(TextStyle? style) =>
         scaler.scale(style!.fontSize!) * style.height!;
-    return 24 + line(text.titleMedium) + _rowHeight(context);
+    return 24 + lineHeight(text.titleMedium) + _rowHeight(context);
   }
 
   static double _rowHeight(BuildContext context) {
     final scaler = MediaQuery.textScalerOf(context);
     final text = Theme.of(context).textTheme;
-    double line(TextStyle? style) =>
+    double lineHeight(TextStyle? style) =>
         scaler.scale(style!.fontSize!) * style.height!;
-    return line(text.labelMedium) + 2 + 36 + 4 + 2 * line(text.bodySmall) + 8;
+    return lineHeight(text.labelMedium) +
+        2 +
+        36 +
+        4 +
+        2 * lineHeight(text.bodySmall) +
+        8;
   }
 
   final List<ComboStep> steps;
@@ -459,7 +424,6 @@ class _StepTile extends StatelessWidget {
   }
 }
 
-/// Why the combo was not saved, kept on screen until the next change.
 class _ProblemBanner extends StatelessWidget {
   const _ProblemBanner(this.problem, {required this.onOpenExisting});
 

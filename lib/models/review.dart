@@ -2,7 +2,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'review.freezed.dart';
 
-/// The grade given after a combo in a session (F22).
 enum Grade {
   hard('Difficile'),
   good('Correct'),
@@ -13,7 +12,6 @@ enum Grade {
   final String label;
 }
 
-/// One review of a combo. Deleted with its combo.
 @freezed
 class Review with _$Review {
   const Review({

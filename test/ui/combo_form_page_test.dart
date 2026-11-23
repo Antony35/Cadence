@@ -13,7 +13,6 @@ Future<void> openForm(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// Touches a tile, then « Ajouter » in the technique window.
 Future<void> addFromGrid(WidgetTester tester, String tile) async {
   await tester.tap(find.text(tile));
   await tester.pumpAndSettle();
@@ -127,7 +126,6 @@ void main() {
     await openForm(tester);
     await addFromGrid(tester, 'JAB');
 
-    // The Android back button.
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.text('Abandonner la saisie ?'), findsOneWidget);

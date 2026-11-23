@@ -5,8 +5,6 @@ import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/technique_image.dart';
 import 'package:flutter/material.dart';
 
-/// One combo of a list (F3): its name, the images of its steps and its next
-/// review.
 class ComboTile extends StatelessWidget {
   const ComboTile({
     super.key,
@@ -15,13 +13,11 @@ class ComboTile extends StatelessWidget {
     this.onTap,
   });
 
-  /// F3: six images at most, then « +3 ».
   static const maxThumbnails = 6;
 
   final Combo combo;
   final DateTime today;
 
-  /// Opens the combo sheet.
   final VoidCallback? onTap;
 
   @override
@@ -31,7 +27,6 @@ class ComboTile extends StatelessWidget {
     final days = daysBetween(today, combo.dueOn);
     final hidden = combo.steps.length - maxThumbnails;
 
-    // A plain row, not a card: the screen separates the rows with lines.
     return InkWell(
       onTap: onTap,
       child: Padding(

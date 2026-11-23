@@ -5,9 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../fakes.dart';
 
-/// Starts the whole app on fake services, on Monday 23 November, on a
-/// phone-sized screen (412 × 915, a Pixel), unless [keepView] keeps the
-/// size the test has set.
 Future<void> pumpApp(
   WidgetTester tester, {
   bool keepView = false,

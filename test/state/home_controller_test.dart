@@ -32,7 +32,8 @@ void main() {
   });
   tearDown(() => controller.dispose());
 
-  List<int> visibleIds() => controller.visible.map((c) => c.id).toList();
+  List<int> visibleIds() =>
+      controller.visibleCombos.map((combo) => combo.id).toList();
 
   group('the four states (S1)', () {
     test('loading, then ready, in review order', () async {
@@ -61,7 +62,7 @@ void main() {
         (state as Failed).message,
         'Impossible de lire vos enchaînements.',
       );
-      expect(controller.visible, isEmpty);
+      expect(controller.visibleCombos, isEmpty);
     });
 
     test('« Réessayer » after an error', () async {

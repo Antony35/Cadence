@@ -16,11 +16,6 @@ import 'package:cadence/ui/widgets/state_views.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-/// E1: the « À réviser » card and the list of combos (F1 to F5).
-///
-/// A [StatefulWidget], because the screen owns objects that must live as
-/// long as it does, then be released: its controller and its lifecycle
-/// listener.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -32,22 +27,17 @@ class _HomePageState extends State<HomePage> {
   late final HomeController _controller;
   late final AppLifecycleListener _lifecycle;
 
-  /// Called once, when the screen appears.
   @override
   void initState() {
     super.initState();
-    // `read` takes a service declared in CadenceApp, once, like a
-    // constructor injection in Symfony.
     _controller = HomeController(
       combos: context.read<ComboRepository>(),
       clock: context.read<Clock>(),
     )..load();
-    // Back to the foreground after a night in the background, « today » has
-    // changed: the figures are computed again.
+    // After a night in the background, « today » has changed.
     _lifecycle = AppLifecycleListener(onResume: _controller.load);
   }
 
-  /// Called once, when the screen goes away.
   @override
   void dispose() {
     _lifecycle.dispose();
@@ -56,20 +46,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _openTechniques() async {
-    Navigator.pop(context); // Closes the side menu first.
+    Navigator.pop(context); // The side menu.
     await Navigator.push(
       context,
       MaterialPageRoute<void>(builder: (_) => const TechniquesPage()),
     );
-    // While we waited, the screen may have been closed: `mounted` says if it
-    // is still there.
     if (!mounted) return;
-    // Back from another screen, the list is read again: a combo may have
-    // been changed or deleted from a technique sheet.
+    // A combo may have been changed or deleted from a technique sheet.
     await _controller.load();
   }
 
-  /// F5: the form; back with a new combo, the list is read again.
   Future<void> _create() async {
     final combo = await Navigator.push(
       context,
@@ -84,19 +70,18 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  /// F19: « Commencer », or « Réviser en avance » when nothing is due. Back
-  /// from the session, the list is read again: the due days have moved.
   Future<void> _startSession() async {
-    final ahead = _controller.summary.due == 0;
+    final reviewAhead = _controller.summary.due == 0;
     await Navigator.push(
       context,
-      MaterialPageRoute<void>(builder: (_) => SessionPage(ahead: ahead)),
+      MaterialPageRoute<void>(
+        builder: (_) => SessionPage(reviewAhead: reviewAhead),
+      ),
     );
     if (!mounted) return;
     await _controller.load();
   }
 
-  /// F5: touching a row opens the sheet of the combo.
   Future<void> _open(Combo combo) async {
     await Navigator.push(
       context,
@@ -110,19 +95,16 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // The logo beside the name, like a poster header.
         title: const Row(
           children: [
             BrandMark(size: 36),
             SizedBox(width: 12),
-            // Shrinks rather than overflows with enlarged text.
             Flexible(child: Text('CADENCE', overflow: TextOverflow.ellipsis)),
           ],
         ),
       ),
       drawer: Drawer(
         child: ListView(
-          // The poster goes up under the status bar.
           padding: EdgeInsets.zero,
           children: [
             const BrandPoster(),
@@ -150,7 +132,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const Divider(),
-            // Paramètres and À propos come with step 6.
             ListTile(
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: AppTheme.gutter,
@@ -165,13 +146,11 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      // The main action of the app (N1): the gold + button.
       floatingActionButton: FloatingActionButton(
         onPressed: _create,
         tooltip: 'Ajouter un enchaînement',
         child: const Icon(Icons.add_rounded),
       ),
-      // Rebuilds what is below each time the controller notifies.
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) => switch (_controller.state) {
@@ -193,70 +172,77 @@ class _HomePageState extends State<HomePage> {
               label: const Text('Ajouter un enchaînement'),
             ),
           ),
-          Ready() => _content(),
+          Ready() => _buildList(),
         },
       ),
     );
   }
 
-  Widget _content() {
-    final visible = _controller.visible;
+  Widget _buildList() {
+    final visibleCombos = _controller.visibleCombos;
+    final summary = _controller.summary;
     final text = Theme.of(context).textTheme;
-    return ListView(
-      // Leaves room for the + button under the last combo.
-      padding: const EdgeInsets.only(top: 16, bottom: 112),
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppTheme.gutter),
-          child: ReviewCard(
-            summary: _controller.summary,
-            onStart: _startSession,
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.only(top: 16),
+          sliver: SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppTheme.gutter),
+              child: ReviewCard(summary: summary, onStart: _startSession),
+            ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppTheme.gutter,
-            40,
-            AppTheme.gutter,
-            8,
-          ),
-          // One text with two styles: it wraps with enlarged text.
-          child: Text.rich(
-            TextSpan(
-              style: text.titleMedium,
-              children: [
-                const TextSpan(text: 'MES ENCHAÎNEMENTS '),
-                TextSpan(
-                  text: '${_controller.summary.total}',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppTheme.gutter,
+              40,
+              AppTheme.gutter,
+              8,
+            ),
+            child: Text.rich(
+              TextSpan(
+                style: text.titleMedium,
+                children: [
+                  const TextSpan(text: 'MES ENCHAÎNEMENTS '),
+                  TextSpan(
+                    text: '${summary.total}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-        SearchFilterBar(
-          filter: _controller.filter,
-          onQueryChanged: _controller.search,
-          onFamilyChanged: _controller.selectFamily,
+        SliverToBoxAdapter(
+          child: SearchFilterBar(
+            filter: _controller.filter,
+            onQueryChanged: _controller.search,
+            onFamilyChanged: _controller.selectFamily,
+          ),
         ),
-        if (visible.isEmpty)
-          NoResultView(onClear: _controller.clearFilter)
+        if (visibleCombos.isEmpty)
+          SliverToBoxAdapter(
+            child: NoResultView(onClear: _controller.clearFilter),
+          )
         else
-          // Rows separated by thin lines, like the lines of a notebook.
-          for (final (index, combo) in visible.indexed) ...[
-            if (index > 0)
-              const Divider(
-                indent: AppTheme.gutter,
-                endIndent: AppTheme.gutter,
-              ),
-            ComboTile(
-              combo: combo,
-              today: _controller.today,
-              onTap: () => _open(combo),
+          SliverList.separated(
+            itemCount: visibleCombos.length,
+            separatorBuilder: (_, _) => const Divider(
+              indent: AppTheme.gutter,
+              endIndent: AppTheme.gutter,
             ),
-          ],
+            itemBuilder: (_, index) => ComboTile(
+              combo: visibleCombos[index],
+              today: _controller.today,
+              onTap: () => _open(visibleCombos[index]),
+            ),
+          ),
+        // Room for the + button under the last combo.
+        const SliverPadding(padding: EdgeInsets.only(bottom: 112)),
       ],
     );
   }

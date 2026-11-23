@@ -16,7 +16,6 @@ import 'pump_app.dart';
 // every timer due on the way. `pumpAndSettle` is not used: it would stop at
 // the first silence without a frame.
 
-/// Touches the button of the « À réviser » card and waits for the page.
 Future<void> openSession(
   WidgetTester tester, [
   String button = 'Commencer',
@@ -33,7 +32,6 @@ Future<void> startCombo(WidgetTester tester) async {
   await tester.pump();
 }
 
-/// Opens the session and starts its first combo.
 Future<void> startSession(
   WidgetTester tester, [
   String button = 'Commencer',
@@ -42,7 +40,6 @@ Future<void> startSession(
   await startCombo(tester);
 }
 
-/// Longer than the 12 repetitions of a short combo.
 const allRepetitions = Duration(minutes: 2);
 
 final today = DateTime(2026, 11, 23);

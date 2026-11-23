@@ -1,5 +1,5 @@
-// A CHECK refers to its own column (`box.isBetweenValues`): this is how drift
-// is written, the getter is read by the code generator, never called.
+// A CHECK refers to its own column: drift's generator reads the getter, it
+// is never called.
 // ignore_for_file: recursive_getters
 
 import 'package:cadence/data/drift/converters.dart';
@@ -7,14 +7,7 @@ import 'package:cadence/models/review.dart';
 import 'package:cadence/models/technique.dart';
 import 'package:drift/drift.dart';
 
-// The six tables of docs/mcd.mmd. Drift generates the SQL (`CREATE TABLE`)
-// and one row class per table, named *Row so that they never clash with the
-// models: the repositories convert rows into models.
-//
-// `textEnum` stores `Enum.name` (`punch`, `lead`…). The CHECK constraints are
-// built from the enum values, so the database refuses any other code.
-
-/// Public: drift copies the CHECK expressions into `database.g.dart`.
+// Public: drift copies the CHECK expressions into `database.g.dart`.
 Expression<bool> isOneOf(Column<String> column, List<Enum> values) =>
     column.isIn(values.map((value) => value.name));
 
@@ -36,7 +29,6 @@ class Techniques extends Table {
     isOneOf(defaultTarget, Target.values),
   )();
 
-  /// Rank in the whole catalog, 1 to 41: `ORDER BY position`.
   IntColumn get position => integer().unique()();
 }
 
@@ -68,7 +60,6 @@ class Combos extends Table {
 
   TextColumn get name => text().nullable()();
 
-  /// Fingerprint of the sequence (D8): forbids duplicates.
   TextColumn get signature => text().unique()();
 
   IntColumn get box => integer().check(box.isBetweenValues(1, 6))();
@@ -88,7 +79,6 @@ class ComboSteps extends Table {
 
   IntColumn get position => integer().check(position.isBetweenValues(0, 11))();
 
-  /// RESTRICT: a technique used by a combo cannot be deleted.
   IntColumn get techniqueId =>
       integer().references(Techniques, #id, onDelete: KeyAction.restrict)();
 

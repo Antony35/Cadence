@@ -9,7 +9,6 @@ import 'package:cadence/ui/widgets/technique_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-/// E5: the 41 techniques, with the search and the family filter (F24).
 class TechniquesPage extends StatefulWidget {
   const TechniquesPage({super.key});
 
@@ -47,7 +46,6 @@ class _TechniquesPageState extends State<TechniquesPage> {
             message: message,
             onRetry: _controller.load,
           ),
-          // The catalog is inserted with the database: never empty.
           Empty() => const MessageView(
             icon: Icons.grid_view_rounded,
             title: 'Aucune technique',
@@ -61,10 +59,10 @@ class _TechniquesPageState extends State<TechniquesPage> {
                 onFamilyChanged: _controller.selectFamily,
               ),
               Expanded(
-                child: _controller.visible.isEmpty
+                child: _controller.visibleTechniques.isEmpty
                     ? NoResultView(onClear: _controller.clearFilter)
                     : TechniqueGrid(
-                        techniques: _controller.visible,
+                        techniques: _controller.visibleTechniques,
                         onTap: _open,
                       ),
               ),

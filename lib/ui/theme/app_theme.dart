@@ -1,36 +1,18 @@
 import 'package:cadence/models/technique.dart';
 import 'package:flutter/material.dart';
 
-/// The only place where colors, fonts and shapes are declared. Screens read
-/// them through `Theme.of(context)`, so switching theme never touches a
-/// screen.
-///
-/// Identity « fight poster »: black and gold like the gloves of the
-/// illustrations, condensed capitals like a gala poster or a round board,
-/// nearly square corners, lists without cards.
 abstract final class AppTheme {
   static final ThemeData light = _build(lightScheme, CadenceColors.light);
   static final ThemeData dark = _build(darkScheme, CadenceColors.dark);
 
-  /// Text font: Barlow, a grotesque drawn after road signs, easy to read.
   static const textFont = 'Barlow';
 
-  /// Display font: its condensed cut, for titles, figures and labels.
   static const displayFont = 'BarlowCondensed';
 
-  /// One corner radius for buttons, fields, tiles and badges.
   static const radius = 4.0;
 
-  /// The side margin of every page: room to breathe.
   static const gutter = 24.0;
 
-  /// A cold off-white: no cream, which reads as a default of AI tools, and a
-  /// charcoal ink rather than a hard black.
-  ///
-  /// Two golds. [ColorScheme.primaryContainer] is the bright, matte gold of
-  /// the actions (buttons, + button), always with dark text on it. Bright
-  /// gold cannot carry small text on a light background (contrast 2.2:1),
-  /// so [ColorScheme.primary], for gold text, is a deeper gold.
   static const ColorScheme lightScheme = ColorScheme(
     brightness: Brightness.light,
     primary: Color(0xFF85620F),
@@ -57,13 +39,10 @@ abstract final class AppTheme {
     outlineVariant: Color(0xFFD6D6D2),
   );
 
-  /// The charcoal of the logo poster (#1F2324), slightly blue-grey, and
-  /// its off-white; no more brown-black.
   static const ColorScheme darkScheme = ColorScheme(
     brightness: Brightness.dark,
     primary: Color(0xFFE0B54D),
     onPrimary: Color(0xFF1F2324),
-    // The same action gold as in the light theme.
     primaryContainer: Color(0xFFE0B54D),
     onPrimaryContainer: Color(0xFF1F2324),
     secondary: Color(0xFFECEAE3),
@@ -86,8 +65,6 @@ abstract final class AppTheme {
     outlineVariant: Color(0xFF3B4244),
   );
 
-  /// Our own scale rather than Material's default one. Display, title and
-  /// label styles use the condensed cut; body styles the regular one.
   static const TextTheme _text = TextTheme(
     displaySmall: TextStyle(
       fontFamily: displayFont,
@@ -163,7 +140,6 @@ abstract final class AppTheme {
       appBarTheme: AppBarThemeData(
         backgroundColor: scheme.surface,
         foregroundColor: scheme.onSurface,
-        // No tint when content scrolls under the bar: the page stays flat.
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
         titleTextStyle: _text.titleLarge?.copyWith(
@@ -182,7 +158,6 @@ abstract final class AppTheme {
         thickness: 1,
         space: 1,
       ),
-      // The main action of a screen: the action gold, tall and bold.
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           shape: corners,
@@ -235,23 +210,13 @@ abstract final class AppTheme {
   }
 }
 
-/// The « À réviser » round board: [ink] for text, [accent] for the figure,
-/// [muted] for the secondary line. Its button is a normal action button.
 typedef ScoreboardColors = ({Color fill, Color ink, Color accent, Color muted});
 
-/// The colors Material has no slot for: one per family (V3), and the round
-/// board of the main screen.
-///
-/// A [ThemeExtension] is added to [ThemeData], so each theme has its own
-/// values and screens read them like the others:
-/// `CadenceColors.of(context).family(Family.kick)`.
 @immutable
 class CadenceColors extends ThemeExtension<CadenceColors> {
   const CadenceColors(this.families, this.scoreboard);
 
-  /// Muted, earthy hues, dark enough to stand out on the off-white (3:1
-  /// at least, the threshold for borders and icons); a grey board with a
-  /// dark gold figure, like the rest of the light theme.
+  // At least 3:1 on the background, the threshold for icons (V3).
   static const light = CadenceColors(
     {
       Family.punch: Color(0xFFA8473A),
@@ -269,8 +234,6 @@ class CadenceColors extends ThemeExtension<CadenceColors> {
     ),
   );
 
-  /// The same hues, lighter, on the charcoal. The board is lifted a little
-  /// above the background.
   static const dark = CadenceColors(
     {
       Family.punch: Color(0xFFD98A7E),
@@ -288,8 +251,6 @@ class CadenceColors extends ThemeExtension<CadenceColors> {
     ),
   );
 
-  /// One color per family: the fine line around its images, its icon, the
-  /// square of its filter tab.
   final Map<Family, Color> families;
   final ScoreboardColors scoreboard;
 
@@ -304,7 +265,6 @@ class CadenceColors extends ThemeExtension<CadenceColors> {
     ScoreboardColors? scoreboard,
   }) => CadenceColors(families ?? this.families, scoreboard ?? this.scoreboard);
 
-  /// Blends two themes, for the animated switch between light and dark.
   @override
   CadenceColors lerp(CadenceColors? other, double t) {
     if (other == null) return this;

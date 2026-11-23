@@ -13,7 +13,6 @@ import 'package:cadence/ui/widgets/technique_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-/// F25: the sheet of a technique, and the combos that use it.
 class TechniquePage extends StatefulWidget {
   const TechniquePage({super.key, required this.technique});
 
@@ -36,8 +35,6 @@ class _TechniquePageState extends State<TechniquePage> {
     super.dispose();
   }
 
-  /// Opens a combo that uses the technique; on return, the list is read
-  /// again (the combo may have been changed or deleted).
   Future<void> _open(int id) async {
     await Navigator.push(
       context,
@@ -60,7 +57,6 @@ class _TechniquePageState extends State<TechniquePage> {
           vertical: 20,
         ),
         children: [
-          // A large figure, as on a fighter's sheet.
           Center(child: TechniqueImage(technique, size: 220)),
           const SizedBox(height: 24),
           Text(technique.name.toUpperCase(), style: text.headlineSmall),

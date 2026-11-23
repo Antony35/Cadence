@@ -30,7 +30,7 @@ void main() {
     await controller.load();
     final detail = (controller.state as Ready<ComboDetail>).data;
     expect(detail.combo.id, 4);
-    expect(detail.reviews, 3);
+    expect(detail.reviewCount, 3);
   });
 
   test('a combo that no longer exists', () async {

@@ -3,10 +3,6 @@ import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/technique_image.dart';
 import 'package:flutter/material.dart';
 
-/// C2: the techniques in 3 columns. The same grid serves the Techniques
-/// screen (a touch opens the sheet) and, from step 4, the form (a touch
-/// opens the window to add the technique). A null [onTap] disables the
-/// tiles: the form is full (F11).
 class TechniqueGrid extends StatelessWidget {
   const TechniqueGrid({
     super.key,
@@ -14,15 +10,12 @@ class TechniqueGrid extends StatelessWidget {
     required this.onTap,
   }) : sliver = false;
 
-  /// The same grid as a sliver: a piece of a [CustomScrollView], which
-  /// scrolls with the other pieces (the form).
   const TechniqueGrid.sliver({
     super.key,
     required this.techniques,
     required this.onTap,
   }) : sliver = true;
 
-  /// The space that holds the image or the family icon.
   static const tileSize = 88.0;
   static const imageSize = 80.0;
 
@@ -33,8 +26,7 @@ class TechniqueGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = Theme.of(context).textTheme.labelLarge!;
-    // V4: 3 columns even with enlarged text, so the tile grows in height
-    // with the text size instead of cutting the name.
+    // Three columns even with large text: tiles grow taller, names never cut.
     final line =
         MediaQuery.textScalerOf(context).scale(label.fontSize!) * label.height!;
     const padding = EdgeInsets.fromLTRB(
@@ -50,7 +42,6 @@ class TechniqueGrid extends StatelessWidget {
       mainAxisExtent: tileSize + 8 + 2 * line,
     );
 
-    // Built on demand: only the visible tiles exist.
     Widget tile(BuildContext context, int index) {
       final technique = techniques[index];
       final onTap = this.onTap;
@@ -87,8 +78,6 @@ class _Tile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // No card, no frame: the image, the name under it. Disabled
-    // tiles are faded.
     return Opacity(
       opacity: onTap == null ? 0.4 : 1,
       child: InkWell(

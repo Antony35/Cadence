@@ -29,21 +29,24 @@ void main() {
     final hook = step('hook', side: Side.rear, target: Target.body);
 
     test('all of it when slow, less and less when faster', () {
-      expect(Drill.call(hook, Pace.slow), 'Crochet arrière au corps');
-      expect(Drill.call(hook, Pace.medium), 'Crochet corps');
-      expect(Drill.call(hook, Pace.fast), 'Crochet');
+      expect(Drill.announcement(hook, Pace.slow), 'Crochet arrière au corps');
+      expect(Drill.announcement(hook, Pace.medium), 'Crochet corps');
+      expect(Drill.announcement(hook, Pace.fast), 'Crochet');
     });
 
     test('the target is said as soon as it was chosen, even the default '
         'one', () {
       final hookHead = step('hook', target: Target.head);
-      expect(Drill.call(hookHead, Pace.slow), 'Crochet avant à la tête');
-      expect(Drill.call(hookHead, Pace.medium), 'Crochet tête');
+      expect(
+        Drill.announcement(hookHead, Pace.slow),
+        'Crochet avant à la tête',
+      );
+      expect(Drill.announcement(hookHead, Pace.medium), 'Crochet tête');
     });
 
     test('nothing to choose, the same call at every pace', () {
       for (final pace in Pace.values) {
-        expect(Drill.call(step('pivot'), pace), 'Pivot');
+        expect(Drill.announcement(step('pivot'), pace), 'Pivot');
       }
     });
   });
@@ -61,7 +64,7 @@ void main() {
       ]);
       expect(cues.map((c) => c.repetition).toSet(), hasLength(12));
       expect(cues.last.repetition, 12);
-      expect(cues.last.index, 2);
+      expect(cues.last.stepIndex, 2);
     });
 
     test('the pace follows the repetition', () {

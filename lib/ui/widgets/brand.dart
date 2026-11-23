@@ -1,9 +1,6 @@
 import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// The logo of Cadence: the gloves of the character, on the charcoal of the
-/// poster. Purely decorative for a screen reader: the name is always
-/// written next to it.
 class BrandMark extends StatelessWidget {
   const BrandMark({super.key, this.size = 32});
 
@@ -24,9 +21,6 @@ class BrandMark extends StatelessWidget {
   );
 }
 
-/// The poster, cut to a square: the poster is taller than wide, and its
-/// gloves fill the lower part. A square keeps them whole at any width; only
-/// the top of the hanging lace is cut.
 class BrandPoster extends StatelessWidget {
   const BrandPoster({super.key});
 

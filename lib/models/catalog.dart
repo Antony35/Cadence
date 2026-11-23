@@ -4,13 +4,7 @@ const _both = {Side.lead, Side.rear};
 const _headBody = {Target.head, Target.body};
 const _head = {Target.head};
 
-/// The 41 techniques, inserted in this order when the database is created:
-/// the first one gets position 1. Families follow each other in [Family]
-/// order, so `ORDER BY position` lists the catalog grouped by family.
-///
-/// This is reference data, not demo data: the user cannot change it.
 const List<Technique> catalog = [
-  // Punches.
   Technique(
     slug: 'jab',
     name: 'Jab',
@@ -84,7 +78,6 @@ const List<Technique> catalog = [
     defaultTarget: Target.head,
   ),
 
-  // Elbows.
   Technique(
     slug: 'elbow_horizontal',
     name: 'Coude horizontal',
@@ -140,7 +133,6 @@ const List<Technique> catalog = [
     defaultTarget: Target.head,
   ),
 
-  // Kicks.
   Technique(
     slug: 'low_kick',
     name: 'Low kick',
@@ -220,7 +212,6 @@ const List<Technique> catalog = [
     defaultSide: Side.rear,
   ),
 
-  // Knees.
   Technique(
     slug: 'knee_straight',
     name: 'Genou direct',
@@ -258,7 +249,6 @@ const List<Technique> catalog = [
     defaultTarget: Target.body,
   ),
 
-  // Defenses: no side, no target.
   Technique(slug: 'shin_block', name: 'Blocage tibia', family: Family.defense),
   Technique(slug: 'parry', name: 'Parade chassée', family: Family.defense),
   Technique(slug: 'high_guard', name: 'Garde haute', family: Family.defense),
@@ -271,7 +261,6 @@ const List<Technique> catalog = [
   ),
   Technique(slug: 'leg_catch', name: 'Saisie de jambe', family: Family.defense),
 
-  // Footwork: no side, no target.
   Technique(slug: 'step_off', name: 'Décalage', family: Family.footwork),
   Technique(slug: 'pivot', name: 'Pivot', family: Family.footwork),
   Technique(slug: 'step_back', name: 'Pas de retrait', family: Family.footwork),

@@ -4,14 +4,11 @@ import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/sunburst.dart';
 import 'package:flutter/material.dart';
 
-/// F1, F2: the « À réviser » card, the summary view of the app, drawn as a
-/// round board: a solid block, a gold figure.
 class ReviewCard extends StatelessWidget {
   const ReviewCard({super.key, required this.summary, required this.onStart});
 
   final ReviewSummary summary;
 
-  /// F19: opens the session, or « Réviser en avance » when nothing is due.
   final VoidCallback onStart;
 
   @override
@@ -25,7 +22,6 @@ class ReviewCard extends StatelessWidget {
         color: board.fill,
         borderRadius: BorderRadius.circular(AppTheme.radius),
       ),
-      // The rays of the logo poster, faint, behind the figures.
       child: Stack(
         children: [
           Positioned.fill(
@@ -50,18 +46,16 @@ class ReviewCard extends StatelessWidget {
                     style: text.titleLarge?.copyWith(color: board.ink),
                   )
                 else
-                  // Read as « 5 à réviser » by a screen reader, not « 05 ».
+                  // A screen reader says « 5 à réviser », not « 05 ».
                   MergeSemantics(
                     child: Semantics(
                       label: '$due à réviser',
                       excludeSemantics: true,
-                      // One text with two styles: it wraps with enlarged text
-                      // instead of overflowing.
+                      // One Text.rich: it wraps instead of overflowing with large text.
                       child: Text.rich(
                         TextSpan(
                           children: [
                             TextSpan(
-                              // Two digits, like a round counter.
                               text: due.toString().padLeft(2, '0'),
                               style: text.displaySmall?.copyWith(
                                 color: board.accent,

@@ -51,7 +51,6 @@ class Technique with _$Technique {
     required this.slug,
     required this.name,
     required this.family,
-    this.spokenName,
     this.sides = const {},
     this.targets = const {},
     this.defaultSide,
@@ -66,9 +65,6 @@ class Technique with _$Technique {
 
   final Family family;
 
-  /// Phonetic spelling for the voice when it mispronounces [name].
-  final String? spokenName;
-
   /// Accepted sides; empty for a technique without side (a defense).
   final Set<Side> sides;
 
@@ -80,9 +76,6 @@ class Technique with _$Technique {
 
   /// Preselected target, one of [targets].
   final Target? defaultTarget;
-
-  /// What the voice says: [spokenName] if any, else [name].
-  String get spoken => spokenName ?? name;
 
   /// True when there is nothing to choose before adding the technique (F9).
   bool get hasNoChoice => sides.length < 2 && targets.length < 2;

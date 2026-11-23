@@ -15,6 +15,7 @@ dependencies:
   flutter:
     sdk: flutter
   freezed_annotation: ^3.1.0
+  just_audio: ^0.10.6
 
 dev_dependencies:
   flutter_test:
@@ -26,3 +27,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/voice/techniques/
+    - assets/voice/sides/
+    - assets/voice/targets/

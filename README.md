@@ -49,12 +49,23 @@ Le dossier `drift_schemas/` garde une photo du schéma de chaque version : la
 base d'un téléphone pourra être migrée vers la version suivante sans perdre de
 données.
 
+## La voix
+
+La voix n'est pas la synthèse vocale du téléphone : chaque technique, chaque
+côté (« avant », « arrière ») et chaque cible (« à la tête », « au corps »,
+« à la cuisse ») a été enregistré une fois, avec la synthèse vocale de Gemini,
+dans `assets/voice/`. Une étape se dit en jouant ses enregistrements à la
+suite. La voix est donc la même sur tous les téléphones et fonctionne hors
+ligne. Un test vérifie que chaque technique, côté et cible a son
+enregistrement.
+
 ## Dépendances
 
 | Paquet | Pourquoi |
 |---|---|
 | `freezed`, `freezed_annotation`, `build_runner` | Les objets du modèle sont immuables. `freezed` écrit pour eux `==`, `hashCode`, `copyWith` et `toString` : sans lui, chaque ajout de champ obligerait à modifier ces quatre méthodes à la main, avec le risque d'en oublier une. Le mode « classe classique » est utilisé : la classe reste une classe Dart ordinaire. |
 | `drift`, `drift_flutter`, `drift_dev` | ORM sur SQLite. Les tables sont décrites en Dart, drift écrit le SQL. Choisi pour les migrations versionnées (l'application va évoluer) et pour les requêtes vérifiées à la compilation. drift n'est utilisé que dans `lib/data/drift/`. |
+| `just_audio` | Lit les enregistrements de la voix à la suite, sans blanc entre « Crochet », « arrière » et « au corps ». Utilisé seulement dans `lib/voice/`. |
 
 Chaque paquet est ajouté à l'étape qui s'en sert.
 

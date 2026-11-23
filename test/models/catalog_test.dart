@@ -70,13 +70,5 @@ void main() {
       final legs = catalog.where((t) => t.targets.contains(Target.legs));
       expect(legs.map((t) => t.slug), ['teep']);
     });
-
-    test('the three mispronounced names have a spoken name', () {
-      final spoken = {
-        for (final t in catalog)
-          if (t.spokenName != null) t.slug,
-      };
-      expect(spoken, {'jab', 'overhand', 'superman_punch'});
-    });
   });
 }

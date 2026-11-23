@@ -47,9 +47,10 @@ void main() {
       expect(step('front_kick', side: Side.rear).label, 'Front kick arrière');
     });
 
-    test('the voice uses the phonetic name', () {
-      expect(step('jab', target: Target.body).spokenLabel, 'Djab au corps');
-      expect(step('hook').spokenLabel, 'Crochet avant');
+    test('saidSide and saidTarget are what the label adds to the name', () {
+      final hook = step('hook', side: Side.rear, target: Target.body);
+      expect((hook.saidSide, hook.saidTarget), (Side.rear, Target.body));
+      expect((step('jab').saidSide, step('jab').saidTarget), (null, null));
     });
 
     test('the display name is the name when filled in', () {

@@ -26,8 +26,6 @@ class Techniques extends Table {
 
   TextColumn get name => text()();
 
-  TextColumn get spokenName => text().nullable()();
-
   TextColumn get family =>
       textEnum<Family>().check(isOneOf(family, Family.values))();
 

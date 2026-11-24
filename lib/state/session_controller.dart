@@ -56,6 +56,7 @@ class SessionController extends ChangeNotifier {
     required this._clock,
     required this._speaker,
     required this.reviewAhead,
+    required this.seriesSize,
   });
 
   final ComboRepository _combos;
@@ -63,6 +64,7 @@ class SessionController extends ChangeNotifier {
   final Clock _clock;
 
   final bool reviewAhead;
+  final int seriesSize;
 
   // Not final: SilentSpeaker replaces a failing voice.
   Speaker _speaker;
@@ -167,7 +169,7 @@ class SessionController extends ChangeNotifier {
     final candidates = reviewAhead
         ? await _combos.findAll()
         : await _combos.findDue(today);
-    return Drill.series(candidates, _reviewedIds);
+    return Drill.series(candidates, _reviewedIds, size: seriesSize);
   }
 
   void _startSeries(List<Combo> series) {

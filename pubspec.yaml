@@ -19,7 +19,9 @@ dependencies:
   freezed_annotation: ^3.1.0
   intl: ^0.20.3
   just_audio: ^0.10.6
+  package_info_plus: ^10.2.2
   provider: ^6.1.5+1
+  shared_preferences: ^2.5.6
   wakelock_plus: ^1.8.2
 
 dev_dependencies:
@@ -29,6 +31,7 @@ dev_dependencies:
   freezed: ^4.0.3
   build_runner: ^2.17.1
   drift_dev: ^2.35.3
+  shared_preferences_platform_interface: ^2.4.2
 
 flutter:
   uses-material-design: true
@@ -38,6 +41,7 @@ flutter:
     - assets/techniques/
     # The logo: the poster and its gloves, square.
     - assets/brand/
+    - assets/fonts/OFL.txt
     # The voice: one recorded call per sentence, long (slow) and short.
     - assets/voice/full/
     - assets/voice/short/

@@ -1,6 +1,7 @@
 import 'package:cadence/data/exceptions.dart';
 import 'package:cadence/models/combo.dart';
 import 'package:cadence/models/review.dart';
+import 'package:cadence/models/settings.dart';
 import 'package:cadence/models/technique.dart';
 
 abstract interface class TechniqueRepository {
@@ -50,4 +51,11 @@ abstract interface class ReviewRepository {
   Future<Combo> record(Combo combo, Grade grade, {required DateTime now});
 
   Future<int> countFor(int comboId);
+}
+
+abstract interface class SettingsRepository {
+  /// Unknown or out-of-range stored values fall back to the defaults.
+  Future<Settings> load();
+
+  Future<void> save(Settings settings);
 }

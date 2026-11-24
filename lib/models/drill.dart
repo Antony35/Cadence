@@ -29,8 +29,6 @@ abstract final class Drill {
 
   static const repetitionGap = Duration(milliseconds: 1000);
 
-  static const seriesSize = 5;
-
   static Pace paceOf(int repetition) =>
       Pace.values[(repetition - 1) ~/ repetitionsPerPace];
 
@@ -64,7 +62,7 @@ abstract final class Drill {
   static List<Combo> series(
     List<Combo> candidates,
     Set<int> reviewedIds, {
-    int size = seriesSize,
+    required int size,
   }) => candidates
       .where((combo) => !reviewedIds.contains(combo.id))
       .take(size)

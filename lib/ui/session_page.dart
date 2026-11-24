@@ -5,6 +5,7 @@ import 'package:cadence/models/review.dart';
 import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/screen_awake.dart';
 import 'package:cadence/state/session_controller.dart';
+import 'package:cadence/state/settings_controller.dart';
 import 'package:cadence/state/speaker.dart';
 import 'package:cadence/ui/format.dart';
 import 'package:cadence/ui/theme/app_theme.dart';
@@ -36,6 +37,7 @@ class _SessionPageState extends State<SessionPage> {
       clock: context.read<Clock>(),
       speaker: context.read<Speaker>(),
       reviewAhead: widget.reviewAhead,
+      seriesSize: context.read<SettingsController>().settings.sessionSize,
     )..start();
     // Kept: `context` cannot be read in dispose().
     _awake = context.read<ScreenAwake>()..keepOn();

@@ -3,9 +3,11 @@ import 'package:cadence/models/combo.dart';
 import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/home_controller.dart';
 import 'package:cadence/state/load_state.dart';
+import 'package:cadence/ui/about_page.dart';
 import 'package:cadence/ui/combo_form_page.dart';
 import 'package:cadence/ui/combo_page.dart';
 import 'package:cadence/ui/session_page.dart';
+import 'package:cadence/ui/settings_page.dart';
 import 'package:cadence/ui/techniques_page.dart';
 import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/brand.dart';
@@ -54,6 +56,14 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     // A combo may have been changed or deleted from a technique sheet.
     await _controller.load();
+  }
+
+  Future<void> _openFromMenu(Widget page) async {
+    Navigator.pop(context); // The side menu.
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(builder: (_) => page),
+    );
   }
 
   Future<void> _create() async {
@@ -142,6 +152,28 @@ class _HomePageState extends State<HomePage> {
                 style: Theme.of(context).textTheme.labelLarge,
               ),
               onTap: _openTechniques,
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.gutter,
+              ),
+              leading: const Icon(Icons.tune_rounded),
+              title: Text(
+                'PARAMÈTRES',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              onTap: () => _openFromMenu(const SettingsPage()),
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.gutter,
+              ),
+              leading: const Icon(Icons.info_outline_rounded),
+              title: Text(
+                'À PROPOS',
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              onTap: () => _openFromMenu(const AboutPage()),
             ),
           ],
         ),

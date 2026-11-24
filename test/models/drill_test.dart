@@ -91,13 +91,19 @@ void main() {
     final combos = [for (var id = 1; id <= 7; id++) combo(id: id, dueOn: due)];
 
     test('5 combos per series, in the given order', () {
-      expect(Drill.series(combos, {}).map((c) => c.id), [1, 2, 3, 4, 5]);
+      expect(Drill.series(combos, {}, size: 5).map((c) => c.id), [
+        1,
+        2,
+        3,
+        4,
+        5,
+      ]);
     });
 
     test('« Continuer » leaves out the combos already reviewed', () {
       final reviewed = {1, 2, 3, 4, 5};
-      expect(Drill.series(combos, reviewed).map((c) => c.id), [6, 7]);
-      expect(Drill.series(combos.take(5).toList(), reviewed), isEmpty);
+      expect(Drill.series(combos, reviewed, size: 5).map((c) => c.id), [6, 7]);
+      expect(Drill.series(combos.take(5).toList(), reviewed, size: 5), isEmpty);
     });
   });
 }

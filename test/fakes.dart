@@ -7,6 +7,7 @@ import 'package:cadence/models/combo.dart';
 import 'package:cadence/models/drill.dart';
 import 'package:cadence/models/leitner.dart';
 import 'package:cadence/models/review.dart';
+import 'package:cadence/models/settings.dart';
 import 'package:cadence/models/technique.dart';
 import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/screen_awake.dart';
@@ -208,4 +209,20 @@ class FakeScreenAwake implements ScreenAwake {
 
   @override
   Future<void> release() async => on = false;
+}
+
+class FakeSettingsRepository implements SettingsRepository {
+  FakeSettingsRepository([this.stored = const Settings()]);
+
+  Settings stored;
+  Object? error;
+
+  @override
+  Future<Settings> load() async => stored;
+
+  @override
+  Future<void> save(Settings settings) async {
+    if (error case final error?) throw error;
+    stored = settings;
+  }
 }

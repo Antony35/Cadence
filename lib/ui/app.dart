@@ -1,6 +1,9 @@
 import 'package:cadence/data/repositories.dart';
+import 'package:cadence/models/app_info.dart';
+import 'package:cadence/models/settings.dart';
 import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/screen_awake.dart';
+import 'package:cadence/state/settings_controller.dart';
 import 'package:cadence/state/speaker.dart';
 import 'package:cadence/ui/home_page.dart';
 import 'package:cadence/ui/theme/app_theme.dart';
@@ -17,6 +20,8 @@ class CadenceApp extends StatelessWidget {
     required this.reviews,
     required this.speaker,
     required this.screenAwake,
+    required this.settings,
+    this.appInfo = const AppInfo(version: ''),
     this.images = const TechniqueImages.none(),
     this.clock = const Clock(),
   });
@@ -26,6 +31,8 @@ class CadenceApp extends StatelessWidget {
   final ReviewRepository reviews;
   final Speaker speaker;
   final ScreenAwake screenAwake;
+  final SettingsController settings;
+  final AppInfo appInfo;
   final TechniqueImages images;
   final Clock clock;
 
@@ -41,23 +48,37 @@ class CadenceApp extends StatelessWidget {
         Provider<Clock>.value(value: clock),
         Provider<Speaker>.value(value: speaker),
         Provider<ScreenAwake>.value(value: screenAwake),
+        Provider<AppInfo>.value(value: appInfo),
+        ChangeNotifierProvider<SettingsController>.value(value: settings),
       ],
-      child: MaterialApp(
-        title: 'Cadence',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        locale: const Locale('fr'),
-        supportedLocales: const [Locale('fr')],
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        // Android draws the app under its navigation bar: one SafeArea for every
-        // screen.
-        builder: (context, child) => ColoredBox(
-          color: Theme.of(context).colorScheme.surface,
-          child: SafeArea(top: false, child: child!),
+      child: ListenableBuilder(
+        listenable: settings,
+        builder: (context, _) => MaterialApp(
+          title: 'Cadence',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: settings.settings.theme.mode,
+          locale: const Locale('fr'),
+          supportedLocales: const [Locale('fr')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          // Android draws the app under its navigation bar: one SafeArea for every
+          // screen.
+          builder: (context, child) => ColoredBox(
+            color: Theme.of(context).colorScheme.surface,
+            child: SafeArea(top: false, child: child!),
+          ),
+          home: const HomePage(),
         ),
-        home: const HomePage(),
       ),
     );
   }
+}
+
+extension on ThemeChoice {
+  ThemeMode get mode => switch (this) {
+    ThemeChoice.system => ThemeMode.system,
+    ThemeChoice.light => ThemeMode.light,
+    ThemeChoice.dark => ThemeMode.dark,
+  };
 }

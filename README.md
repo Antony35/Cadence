@@ -25,7 +25,7 @@ semaine à l'autre, les enchaînements montrés par son professeur.
 | 3 | Écran principal | Fait |
 | 4 | Ajouter et corriger un enchaînement | Fait |
 | 5 | Séance de révision vocale | Fait |
-| 6 | Réglages et finitions | À venir |
+| 6 | Réglages et finitions | Fait (une image par famille) |
 | 7 | Livraison | À venir |
 
 ## Le catalogue des techniques
@@ -72,13 +72,13 @@ que chaque annonce, à chaque palier, a son enregistrement. Elle est jouée avec
 | `intl` | Les dates en français sur la fiche d'un enchaînement (« 24 novembre 2026 »). Déjà présent par `flutter_localizations`. |
 | `just_audio` | Joue les annonces enregistrées de la voix, et les accélère un peu sans changer la hauteur de la voix (paliers). Utilisé seulement dans `lib/platform/`, derrière le contrat `Speaker` : les tests utilisent un faux. |
 | `wakelock_plus` | Garde l'écran allumé pendant la séance, quand le téléphone est posé. Derrière le contrat `ScreenAwake`, pour la même raison. |
+| `shared_preferences` | Garde les deux réglages (thème, taille de séance) entre deux lancements. Seulement dans `lib/data/preferences/`, derrière le contrat `SettingsRepository`. |
+| `package_info_plus` | Lit la version de l'APK installé pour « À propos » : toujours celle de `pubspec.yaml`, sans constante à tenir à jour. Lu une fois dans `main.dart`. |
 | `flutter_localizations` (SDK) | Les textes de Material en français (infobulles, boutons système). |
 
 Chaque paquet est ajouté à l'étape qui s'en sert.
 
-Illustrations : le personnage, ses poses et le logo sont générés par IA
-(Gemini), à partir d'une fiche personnage commune ; les prompts sont gardés
-pour que la série reste homogène.
+Illustrations : le logo est généré par IA (Gemini) ; les images des techniques sont générées par IA, puis détourées.
 
 Polices : [Barlow et Barlow Condensed](https://github.com/jpt/barlow), de
 Jeremy Tribby, sous licence SIL Open Font License 1.1
@@ -115,7 +115,8 @@ utilisateur.
 ```
 lib/
   models/   objets et règles métier, purs (aucun Flutter, aucune base)
-  data/     contrats des repositories ; drift/ : leur implémentation SQLite
+  data/     contrats des repositories ; drift/ : leur implémentation SQLite ;
+            preferences/ : les réglages avec shared_preferences
   state/    un contrôleur par écran (ChangeNotifier), les quatre états,
             les contrats de la voix et de l'écran allumé
   platform/ leur implémentation Android (just_audio, wakelock_plus)

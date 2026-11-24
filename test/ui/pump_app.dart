@@ -1,3 +1,6 @@
+import 'package:cadence/models/app_info.dart';
+import 'package:cadence/models/settings.dart';
+import 'package:cadence/state/settings_controller.dart';
 import 'package:cadence/state/speaker.dart';
 import 'package:cadence/ui/app.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +16,7 @@ Future<void> pumpApp(
   FakeReviewRepository? reviews,
   Speaker? speaker,
   FakeScreenAwake? screenAwake,
+  SettingsController? settings,
 }) async {
   if (!keepView) {
     tester.view.physicalSize = const Size(412, 915);
@@ -26,6 +30,13 @@ Future<void> pumpApp(
       reviews: reviews ?? FakeReviewRepository(),
       speaker: speaker ?? FakeSpeaker(),
       screenAwake: screenAwake ?? FakeScreenAwake(),
+      settings:
+          settings ??
+          SettingsController(
+            repository: FakeSettingsRepository(),
+            initial: const Settings(),
+          ),
+      appInfo: const AppInfo(version: '1.0.0'),
       clock: FixedClock(),
     ),
   );

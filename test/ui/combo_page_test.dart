@@ -115,6 +115,7 @@ void main() {
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.text("Cet enchaînement n'existe plus."), findsOneWidget);
+    expect(find.text('Réessayer'), findsNothing);
     expect(find.byTooltip('Supprimer'), findsNothing);
   });
 }

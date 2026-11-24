@@ -77,7 +77,8 @@ class DriftComboRepository implements ComboRepository {
       return Combo(
         id: id,
         name: cleanName,
-        steps: steps,
+        // A copy: the caller's list may be the form's, still being edited.
+        steps: List.unmodifiable(steps),
         box: Leitner.firstBox,
         dueOn: dueOn,
         createdAt: now,
@@ -130,10 +131,11 @@ class DriftComboRepository implements ComboRepository {
     if (deletedRows == 0) throw NotFoundException('combo', id);
   }
 
-  // Two queries whatever the number of combos, not one per combo (N+1).
+  // Two queries whatever the number of combos, not one per combo (N+1), in
+  // one transaction so that an edit cannot slip in between them.
   Future<List<Combo>> _findWhere([
     Expression<bool> Function($CombosTable combos)? filter,
-  ]) async {
+  ]) => _db.transaction(() async {
     final techniques = await _techniques.techniquesById();
     final combos = _db.combos;
     final comboSteps = _db.comboSteps;
@@ -186,7 +188,7 @@ class DriftComboRepository implements ComboRepository {
           updatedAt: row.updatedAt,
         ),
     ];
-  }
+  });
 
   // The UNIQUE constraint stays as a safety net, but its error is wrapped
   // differently in the app (background isolate) and in tests: not parsed.

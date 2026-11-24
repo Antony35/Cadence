@@ -129,7 +129,11 @@ class _ComboPageState extends State<ComboPage> {
               message: message,
               onRetry: _controller.load,
             ),
-            Empty() => const SizedBox.shrink(),
+            Empty() => const MessageView(
+              icon: Icons.delete_outline_rounded,
+              title: 'Enchaînement supprimé',
+              text: "Cet enchaînement n'existe plus.",
+            ),
             Ready(:final data) => _details(data),
           },
         );

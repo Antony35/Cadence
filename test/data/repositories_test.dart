@@ -68,6 +68,14 @@ void main() {
       expect((await combos.findById(unnamed.id)).name, isNull);
     });
 
+    test('the created combo does not share the caller\'s list', () async {
+      final steps = [step('jab'), step('cross')];
+      final created = await combos.create(steps: steps, now: monday);
+      steps.add(step('hook'));
+      expect(created.steps, hasLength(2));
+      expect(() => created.steps.add(step('hook')), throwsUnsupportedError);
+    });
+
     test('an invalid combo is refused before the database', () async {
       expect(() => create(['jab']), throwsArgumentError);
       expect(await combos.findAll(), isEmpty);

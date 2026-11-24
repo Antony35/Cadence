@@ -36,10 +36,7 @@ void main() {
   test('a combo that no longer exists', () async {
     final controller = controllerFor(99);
     await controller.load();
-    expect(
-      (controller.state as Failed).message,
-      "Cet enchaînement n'existe plus.",
-    );
+    expect(controller.state, isA<Empty<ComboDetail>>());
   });
 
   test('F18 — delete', () async {

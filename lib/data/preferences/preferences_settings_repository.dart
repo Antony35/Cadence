@@ -12,8 +12,10 @@ class PreferencesSettingsRepository implements SettingsRepository {
 
   @override
   Future<Settings> load() async {
-    final themeName = await _preferences.getString(themeKey);
-    final sessionSize = await _preferences.getInt(sessionSizeKey);
+    final themeName = await _readOrNull(() => _preferences.getString(themeKey));
+    final sessionSize = await _readOrNull(
+      () => _preferences.getInt(sessionSizeKey),
+    );
     return Settings(
       theme: ThemeChoice.values.asNameMap()[themeName] ?? ThemeChoice.system,
       sessionSize: _isValidSessionSize(sessionSize)
@@ -26,6 +28,16 @@ class PreferencesSettingsRepository implements SettingsRepository {
   Future<void> save(Settings settings) async {
     await _preferences.setString(themeKey, settings.theme.name);
     await _preferences.setInt(sessionSizeKey, settings.sessionSize);
+  }
+
+  // Read before runApp: a value of the wrong type (older version, restored
+  // backup) must give the default, not an app that never opens.
+  static Future<T?> _readOrNull<T>(Future<T?> Function() read) async {
+    try {
+      return await read();
+    } catch (_) {
+      return null;
+    }
   }
 
   static bool _isValidSessionSize(int? size) =>

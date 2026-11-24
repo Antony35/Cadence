@@ -36,7 +36,7 @@ class ComboController extends ChangeNotifier {
       final reviewCount = await _reviews.countFor(id);
       next = Ready((combo: combo, reviewCount: reviewCount));
     } on NotFoundException {
-      next = const Failed("Cet enchaînement n'existe plus.");
+      next = const Empty(); // Deleted elsewhere: retrying cannot bring it back.
     } catch (error) {
       debugPrint('ComboController.load: $error');
       next = const Failed('Impossible de lire cet enchaînement.');

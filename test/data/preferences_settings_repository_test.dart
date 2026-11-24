@@ -36,4 +36,14 @@ void main() {
 
     expect(await repository.load(), const Settings());
   });
+
+  test('values of the wrong type fall back to the defaults', () async {
+    await preferences.setInt(PreferencesSettingsRepository.themeKey, 2);
+    await preferences.setString(
+      PreferencesSettingsRepository.sessionSizeKey,
+      'five',
+    );
+
+    expect(await repository.load(), const Settings());
+  });
 }

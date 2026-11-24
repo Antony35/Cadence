@@ -8,12 +8,48 @@ Après un cours, on note les enchaînements vus en touchant leurs techniques une
 à une. Chaque jour, l'application propose ceux qu'il est temps de réviser et
 les dicte à voix haute, de plus en plus vite.
 
-> Projet en cours de développement. Ce README est complété à chaque étape.
+<p>
+  <img src="screenshots/accueil.png" width="190" alt="Écran principal : la carte « À réviser » et la liste des enchaînements">
+  <img src="screenshots/formulaire.png" width="190" alt="Formulaire : la séquence en cours et la grille des techniques">
+  <img src="screenshots/seance.png" width="190" alt="Séance : la répétition 5 sur 12, au palier moyen">
+  <img src="screenshots/note.png" width="190" alt="Fin d'un enchaînement : Difficile, Correct ou Facile, avec la prochaine révision">
+  <br>
+  <img src="screenshots/techniques.png" width="190" alt="Le catalogue des techniques, filtrable par famille">
+  <img src="screenshots/technique.png" width="190" alt="Fiche d'une technique : famille, côtés, cibles, et les enchaînements qui l'utilisent">
+  <img src="screenshots/accueil-sombre.png" width="190" alt="Écran principal en thème sombre">
+</p>
+
+Captures prises sur un Pixel 9 Pro XL, avec le jeu de démonstration.
+
+## Installer l'application
+
+1. Sur le téléphone, ouvrir la dernière
+   [release](https://github.com/Antony35/Cadence/releases/latest) et
+   télécharger `cadence-v1.0.0-arm64-v8a.apk` (les téléphones Android
+   récents). `armeabi-v7a` sert aux téléphones anciens, `x86_64` aux
+   émulateurs.
+2. Ouvrir le fichier et accepter l'installation d'une source inconnue.
+
+Android 7 ou plus récent. Aucun compte, aucune connexion : l'application
+n'a pas l'autorisation d'accéder à Internet.
 
 ## À qui s'adresse l'application
 
 À un pratiquant de sport de combat qui suit des cours en club et oublie, d'une
 semaine à l'autre, les enchaînements montrés par son professeur.
+
+## Ce qu'elle fait
+
+- **Noter un enchaînement** en touchant ses techniques une à une, avec le
+  côté et la cible. Un enchaînement déjà noté est refusé.
+- **Réviser au bon moment** : chaque enchaînement revient après 1, 3, 7, 14,
+  30 puis 60 jours s'il est su, plus tôt s'il ne l'est pas (boîtes de
+  Leitner). La carte « À réviser » dit combien attendent.
+- **S'entraîner à la voix** : l'application dicte chaque enchaînement
+  12 fois, de plus en plus vite, téléphone posé, écran allumé.
+- **Retrouver** un enchaînement par son nom ou ses techniques, filtrer par
+  famille, consulter le catalogue des techniques.
+- Thème clair ou sombre, taille de la séance réglable.
 
 ## Avancement
 
@@ -26,7 +62,7 @@ semaine à l'autre, les enchaînements montrés par son professeur.
 | 4 | Ajouter et corriger un enchaînement | Fait |
 | 5 | Séance de révision vocale | Fait |
 | 6 | Réglages et finitions | Fait (une image par famille) |
-| 7 | Livraison | À venir |
+| 7 | Livraison | Fait |
 
 ## Le catalogue des techniques
 
@@ -62,6 +98,29 @@ la même sur tous les téléphones et fonctionne hors ligne. Un test vérifie
 que chaque annonce, à chaque palier, a son enregistrement. Elle est jouée avec `just_audio`, derrière le contrat
 `Speaker` (`lib/platform/clip_speaker.dart`).
 
+## Trois choix justifiés
+
+**Une voix enregistrée plutôt que la synthèse vocale du téléphone.** La
+synthèse dépend du téléphone : voix, accent et prononciation des termes
+anglais (« Low kick », « Teep ») changent d'un modèle à l'autre, et
+certaines sont absentes. Les 140 annonces enregistrées sont les mêmes
+partout, hors ligne, et l'annonce peut raccourcir avec la vitesse comme le
+ferait un entraîneur. Le prix : 840 Ko d'audio, et toute nouvelle technique
+demande ses enregistrements (un test le vérifie).
+
+**drift plutôt que `sqflite`.** `sqflite` exécute du SQL écrit à la main,
+sous forme de texte : une faute de colonne n'apparaît qu'à l'exécution.
+drift décrit les tables en Dart, vérifie les requêtes à la compilation et
+versionne le schéma (`drift_schemas/`) : la V2 (statistiques, techniques
+personnelles) pourra migrer la base des téléphones sans perdre de données.
+
+**Des contrats entre les couches, et des faux pour les tests.** Les écrans
+ne connaissent que leur contrôleur, les contrôleurs ne connaissent que des
+contrats (repositories, voix, horloge, écran allumé). Chaque test d'écran
+remplace la base, la voix et l'horloge par des faux : une séance de deux
+minutes se teste en temps factice, la voix en panne se simule, et les
+règles de révision ne dépendent jamais de la date du jour.
+
 ## Dépendances
 
 | Paquet | Pourquoi |
@@ -78,12 +137,30 @@ que chaque annonce, à chaque palier, a son enregistrement. Elle est jouée avec
 
 Chaque paquet est ajouté à l'étape qui s'en sert.
 
-Illustrations : le logo est généré par IA (Gemini) ; les images des techniques sont générées par IA, puis détourées.
+## Origines
 
-Polices : [Barlow et Barlow Condensed](https://github.com/jpt/barlow), de
-Jeremy Tribby, sous licence SIL Open Font License 1.1
-(`assets/fonts/OFL.txt`). Elles sont embarquées dans l'application, qui
-fonctionne hors ligne.
+- **Logo et illustrations** : générés par IA (Gemini), puis détourés. Une
+  image par famille de techniques.
+- **Voix** : générée par la synthèse vocale de Gemini, en une seule fois,
+  puis découpée en une phrase par annonce.
+- **Polices** : [Barlow et Barlow Condensed](https://github.com/jpt/barlow),
+  de Jeremy Tribby, sous licence SIL Open Font License 1.1
+  (`assets/fonts/OFL.txt`), embarquées pour fonctionner hors ligne.
+- **Vocabulaire** : glossaire technique de la FFKMDA et usage des clubs
+  français.
+
+## Limites
+
+- Android seulement, en français seulement.
+- Aucun compte ni synchronisation : les données restent sur le téléphone.
+  Android peut toutefois les copier dans le compte Google si sa sauvegarde
+  est activée (« À propos » le dit).
+- Le catalogue des 41 techniques est fixe : on ne peut pas encore ajouter
+  les siennes (prévu en V1.2).
+- Une illustration par famille, pas encore une par technique.
+- Les intervalles de révision sont fixes, sans réglage.
+- Le timbre de la voix varie légèrement sur une partie des annonces.
+- Pas de publication sur un store : l'APK s'installe à la main.
 
 ## Lancer le projet
 
@@ -136,3 +213,32 @@ flutter test
 
 Ces commandes sont lancées automatiquement à chaque `push` par GitHub
 Actions (`.github/workflows/ci.yml`).
+
+## Construire la version finale
+
+L'APK final est signé avec une clé personnelle, hors du dépôt. Gradle la
+trouve grâce à `android/key.properties` (jamais versionné) :
+
+```properties
+storePassword=…
+keyPassword=…
+keyAlias=…
+storeFile=/chemin/vers/la-cle.jks
+```
+
+```bash
+flutter build apk --release --split-per-abi
+```
+
+Sans ce fichier, la construction s'arrête plutôt que de signer avec la clé
+de débogage.
+
+Pousser un tag `v…` lance `.github/workflows/release.yml` : les mêmes
+contrôles que la CI, puis la construction des APK signés (clé lue dans les
+secrets du dépôt) et leur publication dans une release GitHub. Le tag doit
+correspondre à la version de `pubspec.yaml`.
+
+## Documentation
+
+[`docs/CHOIX.md`](docs/CHOIX.md) explique chaque décision, étape par étape,
+avec les questions qu'un jury pourrait poser.

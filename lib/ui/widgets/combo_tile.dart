@@ -11,6 +11,7 @@ class ComboTile extends StatelessWidget {
     required this.combo,
     required this.today,
     this.onTap,
+    this.horizontalPadding = AppTheme.gutter,
   });
 
   static const maxThumbnails = 6;
@@ -19,6 +20,9 @@ class ComboTile extends StatelessWidget {
   final DateTime today;
 
   final VoidCallback? onTap;
+
+  /// Zero when the parent already applies the page gutter.
+  final double horizontalPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +34,8 @@ class ComboTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppTheme.gutter,
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
           vertical: 18,
         ),
         child: Column(

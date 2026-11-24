@@ -95,6 +95,7 @@ class _TechniquePageState extends State<TechniquePage> {
                       combo: combo,
                       today: _controller.today,
                       onTap: () => _open(combo.id),
+                      horizontalPadding: 0,
                     ),
                   ],
                 ],

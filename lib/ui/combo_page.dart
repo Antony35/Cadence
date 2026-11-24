@@ -1,10 +1,12 @@
 import 'package:cadence/data/repositories.dart';
 import 'package:cadence/models/combo.dart';
+import 'package:cadence/models/technique.dart';
 import 'package:cadence/state/clock.dart';
 import 'package:cadence/state/combo_controller.dart';
 import 'package:cadence/state/load_state.dart';
 import 'package:cadence/ui/combo_form_page.dart';
 import 'package:cadence/ui/format.dart';
+import 'package:cadence/ui/technique_page.dart';
 import 'package:cadence/ui/theme/app_theme.dart';
 import 'package:cadence/ui/widgets/fact_row.dart';
 import 'package:cadence/ui/widgets/state_views.dart';
@@ -40,6 +42,19 @@ class _ComboPageState extends State<ComboPage> {
       context,
       MaterialPageRoute<Combo>(
         builder: (_) => ComboFormPage(editedCombo: combo),
+      ),
+    );
+    if (!mounted) return;
+    await _controller.load();
+  }
+
+  // The technique sheet links back to its combos, this one included: it may
+  // have been edited or deleted from there.
+  Future<void> _openTechnique(Technique technique) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => TechniquePage(technique: technique),
       ),
     );
     if (!mounted) return;
@@ -152,34 +167,37 @@ class _ComboPageState extends State<ComboPage> {
         ),
         for (final (index, step) in combo.steps.indexed) ...[
           if (index > 0) const Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 32,
-                  child: Text(
-                    stepNumber(index),
-                    style: text.titleMedium?.copyWith(color: scheme.primary),
+          InkWell(
+            onTap: () => _openTechnique(step.technique),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 32,
+                    child: Text(
+                      stepNumber(index),
+                      style: text.titleMedium?.copyWith(color: scheme.primary),
+                    ),
                   ),
-                ),
-                TechniqueImage(step.technique, size: 40),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(step.label, style: text.titleSmall),
-                      Text(
-                        step.technique.family.label,
-                        style: text.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
+                  TechniqueImage(step.technique, size: 40),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(step.label, style: text.titleSmall),
+                        Text(
+                          step.technique.family.label,
+                          style: text.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

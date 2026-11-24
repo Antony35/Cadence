@@ -74,4 +74,47 @@ void main() {
     expect(find.text('OUVERTURE'), findsOneWidget);
     expect(combos.combos.single.id, 1);
   });
+
+  testWidgets('a step opens its technique, aligned with the page gutter', (
+    tester,
+  ) async {
+    await openSheet(tester);
+    await tester.tap(find.text('Crochet avant à la tête'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('CROCHET'), findsOneWidget);
+    expect(find.text('UTILISÉE DANS'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Base')).dx,
+      tester.getTopLeft(find.text('FAMILLE')).dx,
+    );
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('BASE'), findsOneWidget);
+  });
+
+  testWidgets('deleted from its technique sheet: the sheet says it is gone', (
+    tester,
+  ) async {
+    await openSheet(tester);
+    await tester.tap(find.text('Crochet avant à la tête'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Base'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Supprimer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Supprimer'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text("Aucun enchaînement ne l'utilise pour l'instant."),
+      findsOneWidget,
+    );
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text("Cet enchaînement n'existe plus."), findsOneWidget);
+    expect(find.byTooltip('Supprimer'), findsNothing);
+  });
 }

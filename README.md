@@ -23,12 +23,21 @@ Captures prises sur un Pixel 9 Pro XL, avec le jeu de démonstration.
 
 ## Installer l'application
 
-1. Sur le téléphone, ouvrir la dernière
-   [release](https://github.com/Antony35/Cadence/releases/latest) et
-   télécharger `cadence-v1.0.0-arm64-v8a.apk` (les téléphones Android
-   récents). `armeabi-v7a` sert aux téléphones anciens, `x86_64` aux
-   émulateurs.
-2. Ouvrir le fichier et accepter l'installation d'une source inconnue.
+Sur le téléphone, ouvrir la dernière
+[release](https://github.com/Antony35/Cadence/releases/latest), télécharger
+l'APK qui correspond au téléphone, l'ouvrir et accepter l'installation d'une
+source inconnue.
+
+| Fichier | Pour quel appareil |
+|---|---|
+| `cadence-v1.0.0-arm64-v8a.apk` | **Presque tous les téléphones Android** vendus depuis 2017 (processeur 64 bits). À prendre en cas de doute. |
+| `cadence-v1.0.0-armeabi-v7a.apk` | Les téléphones plus anciens ou d'entrée de gamme, à processeur 32 bits. |
+| `cadence-v1.0.0-x86_64.apk` | Un émulateur Android sur ordinateur, certains Chromebook. |
+
+Si Android refuse le premier (« Application non installée »), le téléphone
+a un processeur 32 bits : prendre `armeabi-v7a`. Chaque fichier ne contient
+le code que d'une famille de processeurs, d'où trois fichiers de 22 à 26 Mo
+plutôt qu'un seul de 64 Mo.
 
 Android 7 ou plus récent. Aucun compte, aucune connexion : l'application
 n'a pas l'autorisation d'accéder à Internet.
@@ -127,7 +136,7 @@ règles de révision ne dépendent jamais de la date du jour.
 |---|---|
 | `freezed`, `freezed_annotation`, `build_runner` | Les objets du modèle sont immuables. `freezed` écrit pour eux `==`, `hashCode`, `copyWith` et `toString` : sans lui, chaque ajout de champ obligerait à modifier ces quatre méthodes à la main, avec le risque d'en oublier une. Le mode « classe classique » est utilisé : la classe reste une classe Dart ordinaire. |
 | `drift`, `drift_flutter`, `drift_dev` | ORM sur SQLite. Les tables sont décrites en Dart, drift écrit le SQL. Choisi pour les migrations versionnées (l'application va évoluer) et pour les requêtes vérifiées à la compilation. drift n'est utilisé que dans `lib/data/drift/`. |
-| `provider` | Rend les services (repositories, horloge) accessibles à tous les écrans, comme le conteneur de services de Symfony : un écran demande ce qu'il utilise, sans qu'on le lui transmette d'écran en écran. Choisi en vue de la V2 (profil et statistiques partagés entre écrans). |
+| `provider` | Rend les services (repositories, horloge) accessibles à tous les écrans : un écran demande ce qu'il utilise, sans qu'on le lui transmette d'écran en écran (injection de dépendances). Choisi en vue de la V2 (profil et statistiques partagés entre écrans). |
 | `intl` | Les dates en français sur la fiche d'un enchaînement (« 24 novembre 2026 »). Déjà présent par `flutter_localizations`. |
 | `just_audio` | Joue les annonces enregistrées de la voix, et les accélère un peu sans changer la hauteur de la voix (paliers). Utilisé seulement dans `lib/platform/`, derrière le contrat `Speaker` : les tests utilisent un faux. |
 | `wakelock_plus` | Garde l'écran allumé pendant la séance, quand le téléphone est posé. Derrière le contrat `ScreenAwake`, pour la même raison. |
@@ -240,5 +249,4 @@ correspondre à la version de `pubspec.yaml`.
 
 ## Documentation
 
-[`docs/CHOIX.md`](docs/CHOIX.md) explique chaque décision, étape par étape,
-avec les questions qu'un jury pourrait poser.
+[`docs/CHOIX.md`](docs/CHOIX.md) explique chaque décision, étape par étape.
